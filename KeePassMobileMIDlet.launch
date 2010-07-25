@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="MTJ.emulatorLaunchConfigurationType">
+<booleanAttribute key="mtj.do_jad_launch" value="false"/>
+<booleanAttribute key="mtj.do_ota" value="false"/>
+<stringAttribute key="mtj.launch_params" value="-Ddevelopment"/>
+<stringAttribute key="mtj.specified_jad_url" value=""/>
+<booleanAttribute key="mtj.use_project_device" value="true"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.sperle.keepass.ui.KeePassMobileMIDlet"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="KeePassMobile"/>
+</launchConfiguration>

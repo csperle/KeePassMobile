@@ -1,0 +1,13 @@
+KPM-PasswordFieldWorkaround: disabled
+MIDlet-1: KeePassMobile,/keepassmobile.png,org.sperle.keepass.ui.KeePassMobileMIDlet
+MIDlet-Jar-URL: http://m.keepassmobile.com/KeePassMobile.jar
+MIDlet-Permissions-Opt: javax.microedition.io.Connector.file.write
+KPM-DefaultLanguage: en
+KPM-BetaVersion: true
+MicroEdition-Configuration: CLDC-1.1
+MIDlet-Version: 0.9
+MIDlet-Name: KeePassMobile
+MIDlet-Vendor: Christoph Sperle
+MIDlet-Permissions: javax.microedition.io.Connector.file.read
+MicroEdition-Profile: MIDP-2.0
+KPM-Theme: null

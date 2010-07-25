@@ -1,0 +1,178 @@
+<project name="KeePassMobile" default="default" basedir=".">
+	<property name="wtk.home" value="/opt/WTK2.5.2"/>
+	<property name="wtk.proguard.home" value="/opt/proguard4.4"/>
+	<property name="antenna.home" value="/opt/antenna-1.2.1-beta"/>
+	<property name="findbugs.home" value="/opt/findbugs-1.3.9"/>
+	
+	<property name="keepassmobile.home" value="."/>
+    <property name="keepassmobileio.home" value="../KeePassMobileIO"/>
+	<property name="bc.home" value="../BouncyCastle"/>
+	<property name="lwuit.home" value="../LWUIT13"/>
+	
+    <property name="src.path" value="src"/>
+	<property name="res.path" value="res"/>
+	<property name="res_mini.path" value="res_mini"/>
+	<property name="test.path" value="test"/>
+	<property name="report.path" value="report"/>
+	
+	<property name="build.path" value="build"/>
+    <property name="deploy.path" value="deploy"/>
+	
+	<property name="src.build.path" value="${build.path}/src"/>
+	<property name="compiled.build.path" value="${build.path}/compiled"/>
+	<property name="preverified.build.path" value="${build.path}/preverified"/>
+	<property name="findbugs.build.path" value="${build.path}/findbugs"/>
+	
+	<property name="src.deploy.path" value="${deploy.path}/src"/>
+	<property name="j2me.deploy.path" value="${deploy.path}/j2me"/>
+	<property name="j2me_mini.deploy.path" value="${deploy.path}/j2me_mini"/>
+	
+	<property name="wtk.cldc.version" value="1.1"/>
+	<property name="wtk.midp.version" value="2.0"/>
+	
+	<taskdef classpath="${antenna.home}/antenna.jar" resource="antenna.properties" />
+	<taskdef classpath="${findbugs.home}/lib/findbugs-ant.jar" resource="edu/umd/cs/findbugs/anttask/tasks.properties"/>
+	
+	<path id="j2me.classpath">
+		<fileset dir="${wtk.home}/lib">
+			<include name="jsr75.jar" />
+			<include name="mmapi.jar" />
+			<include name="jsr226.jar" />
+			<include name="midpapi20.jar" />
+			<include name="cldcapi11.jar" />
+		</fileset>
+	</path>
+	
+	<path id="findbugs.classpath">
+		<pathelement path="${compiled.build.path}" />
+		<path refid="j2me.classpath" />
+	</path>
+	
+	<target name="init">
+	    <delete dir="${build.path}"/>
+	    <delete dir="${deploy.path}"/>
+		<delete dir="${report.path}"/>
+		<mkdir dir="${build.path}"/>
+		<mkdir dir="${deploy.path}"/>
+		<mkdir dir="${report.path}"/>
+	</target>
+	
+	<!-- TODO fix creation of src package (also include licenses in dev/licenses) -->
+	<target name="src" depends="init">
+		<mkdir dir="${src.deploy.path}"/>
+		<zip destfile="${src.deploy.path}/keepassmobile-src.zip">
+			<zipfileset dir="${keepassmobile.home}/${src.path}" prefix="src"/>
+			<zipfileset dir="${keepassmobileio.home}/${src.path}" prefix="src"/>
+			<!-- zipfileset dir="${keepassmobile.home}/${lib.path}" excludes="keepassmobileio.jar" prefix="lib"/ -->
+			<zipfileset dir="${keepassmobile.home}/${res.path}" prefix="res"/>
+			<zipfileset dir="${keepassmobileio.home}/${res.path}" prefix="res"/>
+			<zipfileset dir="${keepassmobile.home}" includes="License.txt"/>
+		</zip>
+	</target>
+	
+	<target name="collect sources" depends="init">
+		<mkdir dir="${src.build.path}"/>
+		<copy todir="${src.build.path}">
+			<fileset dir="${bc.home}/${src.path}">
+				<exclude name="**/.svn/**"/>
+			</fileset>
+			<fileset dir="${lwuit.home}/${src.path}">
+				<exclude name="**/.svn/**"/>
+			    <exclude name="**/M3G.java"/>
+				<exclude name="**/SVGImage.java"/>
+				<exclude name="**/SVGImplementation*.java"/>
+				<exclude name="**/Transition3D.java"/>
+			</fileset>
+			<fileset dir="${keepassmobileio.home}/${src.path}">
+		        <exclude name="**/.svn/**"/>
+		    </fileset>
+			<fileset dir="${keepassmobile.home}/${src.path}">
+				<exclude name="**/.svn/**"/>
+			</fileset>
+		</copy>
+	</target>
+		
+	<target name="compile" depends="collect sources">
+		<mkdir dir="${compiled.build.path}"/>
+		<javac srcdir="${src.build.path}" destdir="${compiled.build.path}" debug="true" nowarn="true" source="1.3" target="1.1">
+			<classpath>
+				<path refid="j2me.classpath"/>
+			</classpath>
+		</javac>
+	</target>
+	
+	<target name="preverify" depends="compile">
+		<mkdir dir="${preverified.build.path}"/>
+		<wtkpreverify srcdir="${compiled.build.path}" destdir="${preverified.build.path}">
+			<bootclasspath>
+				<path refid="j2me.classpath"/>
+			</bootclasspath>
+		</wtkpreverify>
+	</target>
+	
+	<target name="jad" depends="init"> <!-- TODO -->
+		<mkdir dir="${j2me.deploy.path}"/>
+		<copy file="${keepassmobile.home}/Application Descriptor" tofile="${j2me.deploy.path}/KeePassMobile.jad"/>
+	</target>
+	
+	<target name="j2me" depends="preverify, jad">
+		<wtkpackage jarfile="${j2me.deploy.path}/KeePassMobile.jar" jadfile="${j2me.deploy.path}/KeePassMobile.jad" obfuscate="true" preverify="false">
+			<argument value="-dontusemixedcaseclassnames -overloadaggressively -repackageclasses '' -allowaccessmodification -microedition -keep public class * extends javax.microedition.midlet.MIDlet" />
+			<bootclasspath>
+				<path refid="j2me.classpath"/>
+			</bootclasspath>
+			<fileset dir="${preverified.build.path}"/>
+			<fileset dir="${keepassmobile.home}/${res.path}">
+				<exclude name="**/.svn/**"/>
+			</fileset>
+			<fileset dir="${keepassmobile.home}/${src.path}" includes="**/*.properties" />
+		</wtkpackage>
+	</target>
+
+	<target name="jad_mini" depends="init"> <!-- TODO -->
+		<mkdir dir="${j2me_mini.deploy.path}"/>
+		<copy file="${keepassmobile.home}/Application Descriptor" tofile="${j2me_mini.deploy.path}/KeePassMobile.jad"/>
+	</target>
+	
+	<target name="j2me_mini" depends="preverify, jad_mini">
+		<wtkpackage jarfile="${j2me_mini.deploy.path}/KeePassMobile.jar" jadfile="${j2me_mini.deploy.path}/KeePassMobile.jad" obfuscate="true" preverify="false">
+			<argument value="-dontusemixedcaseclassnames -overloadaggressively -repackageclasses '' -allowaccessmodification -microedition -keep public class * extends javax.microedition.midlet.MIDlet" />
+			<bootclasspath>
+				<path refid="j2me.classpath"/>
+			</bootclasspath>
+			<fileset dir="${preverified.build.path}"/>
+			<fileset dir="${keepassmobile.home}/${res.path}" includes="filechooser.res, kdbicons.res, **/*.png"/>
+			<fileset dir="${keepassmobile.home}/${res_mini.path}" includes="**/*.res, **/*.png"/>
+		</wtkpackage>
+	</target>
+	
+	<target name="findbugs" depends="compile">
+		<mkdir dir="${findbugs.build.path}/org/sperle"/>
+		<copy todir="${findbugs.build.path}/org/sperle">
+			<fileset dir="${compiled.build.path}/org/sperle" />
+		</copy>
+	    <findbugs home="${findbugs.home}" output="xml:withMessages" outputFile="${report.path}/findbugs.xml" >
+	        <class location="${findbugs.build.path}" />
+	    	<sourcePath path="${src.build.path}" />
+	    	<auxClasspath>
+	    		<path refid="findbugs.classpath"/>
+	    	</auxClasspath>
+	    </findbugs>
+	</target>
+	
+	<target name="cleanup">
+	    <delete dir="${build.path}"/>
+	</target>
+	
+	<target name="run"><!-- ATTENTION: first delete 'http://m.keepassmobile.com/' from MIDlet-Jar-URL in JAD -->
+		<wtkrun jadfile="${j2me.deploy.path}/KeePassMobile.jad" device="MediaControlSkin" wait="true" heapsize="2M" />
+	</target>
+	
+	<target name="run_mini"><!-- ATTENTION: first delete 'http://m.keepassmobile.com/' from MIDlet-Jar-URL in JAD -->
+		<wtkrun jadfile="${j2me_mini.deploy.path}/KeePassMobile.jad" device="MediaControlSkin" wait="true" heapsize="2M" />
+	</target>
+	
+	<target name="default" depends="src, j2me, cleanup"/>
+	
+	<target name="ci" depends="src, j2me, j2me_mini, findbugs, cleanup"/>
+</project>
