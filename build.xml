@@ -7,7 +7,7 @@
 	<property name="keepassmobile.home" value="."/>
     <property name="keepassmobileio.home" value="../KeePassMobileIO"/>
 	<property name="bc.home" value="../BouncyCastle"/>
-	<property name="lwuit.home" value="../LWUIT13"/>
+	<property name="lwuit.home" value="../LWUIT"/>
 	
     <property name="src.path" value="src"/>
 	<property name="res.path" value="res"/>
