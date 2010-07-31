@@ -247,7 +247,7 @@ public class TreeForm extends ItemListForm {
     
     private void saveDatabase(final boolean closeAfterSave) {
         if(kdb.getFileName().startsWith("file:")) { // file URL: db was loaded from file
-            new Saver(kdb).save();
+            new Saver(app.getKeePassMobileIO(), kdb).save();
             Dialog.show(Messages.get("db_saved"), Messages.get("db_saved_sucessfully") 
                     + " " + kdb.getFileName(), Messages.get("ok"), null);
             if(closeAfterSave) closeDatabase();
@@ -256,7 +256,7 @@ public class TreeForm extends ItemListForm {
                 public void choosen(String foldername) {
                     String filename = foldername + (foldername.endsWith("/") ? "" : "/") + 
                             (kdb.getFileName().endsWith(".kdb") ? kdb.getFileName() : (kdb.getFileName() + ".kdb"));
-                    Saver saver = new Saver(kdb);
+                    Saver saver = new Saver(app.getKeePassMobileIO(), kdb);
                     saver.setFilename(filename);
                     if(saver.save()) {
                         Dialog.show(Messages.get("db_saved"), Messages.get("db_saved_sucessfully") 

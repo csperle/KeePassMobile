@@ -27,14 +27,12 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
 
-import org.sperle.keepass.ui.command.CommandManager;
-import org.sperle.keepass.ui.command.DefaultCommandManager;
-
 import com.sun.lwuit.Display;
 import com.sun.lwuit.util.Log;
 
 /**
- * The MIDlet to start KeePassMobile on the J2ME platform.
+ * The MIDlet to start KeePassMobile on the J2ME platform. It implements the Platform
+ * interface in a J2ME compatible way.
  */
 public class KeePassMobileMIDlet extends MIDlet implements Platform {
 
@@ -84,10 +82,10 @@ public class KeePassMobileMIDlet extends MIDlet implements Platform {
     }
     
     /**
-     * Override in Android & BlackBerry implementations to follow different command behaviour.
+     * Creates a KeePassMobileFactory for the J2ME platform.
      */
-    public CommandManager getCommandManager() {
-        return new DefaultCommandManager();
+    public KeePassMobileFactory getKeePassMobileFactory() {
+        return new KeePassMobileFactoryJ2ME();
     }
     
     /**

@@ -22,7 +22,6 @@ package org.sperle.keepass.ui.passgen;
 
 import java.util.Vector;
 
-import org.sperle.keepass.KeePassMobileIOFactory;
 import org.sperle.keepass.ui.KeePassMobile;
 import org.sperle.keepass.ui.edit.EntryForm;
 import org.sperle.keepass.ui.form.Forms;
@@ -68,7 +67,7 @@ public class PassgenForm extends KeePassMobileForm {
     public static synchronized PassgenForm create(KeePassMobile app, EntryForm entryForm) {
         if (instance == null) {
             instance = new PassgenForm(app);
-            instance.generator = new SimplePasswordGenerator(new KeePassMobileIOFactory().createRandom());
+            instance.generator = new SimplePasswordGenerator(app.createRandom());
         }
         instance.entryForm = entryForm;
         instance.generateNewPasswordList();

@@ -30,7 +30,6 @@ import org.sperle.keepass.kdb.SearchOptions;
 import org.sperle.keepass.kdb.v1.KdbEntryV1;
 import org.sperle.keepass.monitor.ProgressMonitor;
 import org.sperle.keepass.ui.KeePassMobile;
-import org.sperle.keepass.ui.KeePassMobileMIDlet;
 import org.sperle.keepass.ui.edit.EntryForm;
 import org.sperle.keepass.ui.form.Forms;
 import org.sperle.keepass.ui.form.ItemListForm;

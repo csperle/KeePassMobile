@@ -22,8 +22,6 @@ package org.sperle.keepass.ui.source.create;
 
 import java.io.IOException;
 
-import org.sperle.keepass.KeePassMobileIO;
-import org.sperle.keepass.KeePassMobileIOFactory;
 import org.sperle.keepass.kdb.KdbGroup;
 import org.sperle.keepass.kdb.KeePassDatabase;
 import org.sperle.keepass.ui.KeePassMobile;
@@ -83,12 +81,10 @@ public class CreateDatabaseSource implements MenuItem {
         }
         
         Log.p("Trying to create new database...", Log.DEBUG);
-        KeePassMobileIOFactory factory = new KeePassMobileIOFactory();
-        KeePassMobileIO keePassIO = factory.create();
         
         KeePassDatabase kdb = null;
         try {
-            kdb = keePassIO.create(dbname, password, keyfile);
+            kdb = app.getKeePassMobileIO().create(dbname, password, keyfile);
         } catch (IOException e) {
             Log.p("Could not load key file - " + e.toString(), Log.ERROR);
             Dialog.show(Messages.get("keyfile_error"), Messages.get("keyfile_error_text") + e.getMessage(), Messages.get("ok"), null);

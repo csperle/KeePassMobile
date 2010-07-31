@@ -30,10 +30,10 @@ import org.sperle.keepass.ui.KeePassMobile;
 
 public class MidletKeePassMobileIOFactory extends KeePassMobileIOFactory {
     protected IOManager createIOManager() {
-        return new TestIOManager();
+        return new JarResourceIOManager();
     }
     
-    public static class TestIOManager implements IOManager {
+    private static class JarResourceIOManager implements IOManager {
 
         public boolean exists(String name) throws IOException {
             throw new IllegalStateException("MidletKeePassMobileIOFactory is only for loading kdb files");

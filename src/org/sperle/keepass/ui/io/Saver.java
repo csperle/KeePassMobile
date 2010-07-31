@@ -21,7 +21,6 @@
 package org.sperle.keepass.ui.io;
 
 import org.sperle.keepass.KeePassMobileIO;
-import org.sperle.keepass.KeePassMobileIOFactory;
 import org.sperle.keepass.crypto.KeePassCryptoException;
 import org.sperle.keepass.kdb.KeePassDatabase;
 import org.sperle.keepass.kdb.KeePassDatabaseException;
@@ -33,6 +32,7 @@ import com.sun.lwuit.Dialog;
 import com.sun.lwuit.util.Log;
 
 public class Saver implements Runnable {
+    private KeePassMobileIO keePassMobileIO;
     private String filename;
     
     private ProgressMonitor pm;
@@ -40,9 +40,10 @@ public class Saver implements Runnable {
     private KeePassDatabase kdb;
     private Exception exception;
     private boolean success;
-    
-    public Saver(KeePassDatabase kdb) {
+
+    public Saver(KeePassMobileIO keePassMobileIO, KeePassDatabase kdb) {
         this.kdb = kdb;
+        this.keePassMobileIO = keePassMobileIO;
     }
     
     public void setFilename(String filename) {
@@ -84,10 +85,8 @@ public class Saver implements Runnable {
     
     // runs in own thread (not EDT -> no UI code allowed!)
     public void run() {
-        KeePassMobileIOFactory factory = new KeePassMobileIOFactory();
-        KeePassMobileIO keePassIO = factory.create();
         try {
-            success = keePassIO.save(kdb, filename, pm);
+            success = keePassMobileIO.save(kdb, filename, pm);
         } catch (Exception e) {
             exception = e;
         } finally {

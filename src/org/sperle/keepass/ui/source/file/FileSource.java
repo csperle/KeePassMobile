@@ -117,7 +117,7 @@ public class FileSource implements MenuItem {
     }
     
     protected void decrypt(String password, String keyfile) {
-        Loader loader = new Loader(filename, password, keyfile);
+        Loader loader = new Loader(app.getKeePassMobileIO(), filename, password, keyfile);
         loader.load();
         KeePassDatabase kdb = loader.getKdb();
         

@@ -21,7 +21,6 @@
 package org.sperle.keepass.ui.form;
 
 import org.sperle.keepass.ui.KeePassMobile;
-import org.sperle.keepass.ui.KeePassMobileMIDlet;
 import org.sperle.keepass.ui.font.Fonts;
 import org.sperle.keepass.ui.i18n.Messages;
 import org.sperle.keepass.ui.icon.Icons;

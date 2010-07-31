@@ -22,12 +22,6 @@ package org.sperle.keepass.ui.form;
 
 import java.io.IOException;
 
-import javax.microedition.lcdui.Alert;
-import javax.microedition.lcdui.AlertType;
-import javax.microedition.lcdui.CommandListener;
-import javax.microedition.lcdui.Displayable;
-
-import org.sperle.keepass.ui.KeePassMobile;
 import org.sperle.keepass.ui.i18n.Messages;
 import org.sperle.keepass.ui.icon.Icons;
 

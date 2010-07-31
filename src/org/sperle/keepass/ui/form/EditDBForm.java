@@ -20,8 +20,6 @@
 
 package org.sperle.keepass.ui.form;
 
-import org.sperle.keepass.KeePassMobileIO;
-import org.sperle.keepass.KeePassMobileIOFactory;
 import org.sperle.keepass.kdb.KeePassDatabase;
 import org.sperle.keepass.ui.KeePassMobile;
 import org.sperle.keepass.ui.i18n.Messages;
@@ -178,9 +176,7 @@ public class EditDBForm extends KeePassMobileForm {
         FileChooserForm fileChooser = new FileChooserForm(app, new FileChooserForm.FileChooserCallback() {
             public void choosen(String filename) {
                 try {
-                    KeePassMobileIOFactory factory = new KeePassMobileIOFactory();
-                    KeePassMobileIO keePassIO = factory.create();
-                    keePassIO.setKeyFile(kdb, filename);
+                    app.getKeePassMobileIO().setKeyFile(kdb, filename);
                     Log.p("Keyfile added/changed successfully", Log.DEBUG);
                     app.getCommandManager().addCommands(EditDBForm.this, createCommands(), defaultCommand);
                     Dialog.show(Messages.get("keyfile_set"), Messages.get("keyfile_set_sucessfully"), Messages.get("ok"), null);

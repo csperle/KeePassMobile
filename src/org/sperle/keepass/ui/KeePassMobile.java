@@ -3,8 +3,10 @@ package org.sperle.keepass.ui;
 import java.io.IOException;
 import java.util.Vector;
 
+import org.sperle.keepass.KeePassMobileIO;
 import org.sperle.keepass.kdb.KdbEntry;
 import org.sperle.keepass.kdb.KeePassDatabase;
+import org.sperle.keepass.rand.Random;
 import org.sperle.keepass.ui.command.CommandManager;
 import org.sperle.keepass.ui.font.Fonts;
 import org.sperle.keepass.ui.form.Forms;
@@ -24,6 +26,10 @@ import org.sperle.keepass.ui.util.Vectors;
 
 import com.sun.lwuit.util.Log;
 
+/**
+ * This class represents the KeePassMobile application by itself and should be completely platform independent.
+ * It implements the Application interface for startup and shutdown and to react on the platform events.
+ */
 public class KeePassMobile implements Application {
     public static final String NAME = "KeePassMobile";
     public static final String VERSION = "V0.9";
@@ -46,7 +52,9 @@ public class KeePassMobile implements Application {
     public static final String KPM_PASSWORD_FIELD_WORKAROUND = "KPM-PasswordFieldWorkaround";
     
     private Platform platform;
+    private KeePassMobileIO keePassMobileIO;
     private CommandManager commandManager;
+    
     private Settings settings;
     private MainMenuForm mainMenu;
     private boolean fastUI;
@@ -103,8 +111,11 @@ public class KeePassMobile implements Application {
             }
         }
         
-        // create and initialize command manager
-        commandManager = platform.getCommandManager();
+        
+        // create and initialize platform specific components
+        KeePassMobileFactory keePassMobileFactory = platform.getKeePassMobileFactory();
+        keePassMobileIO = keePassMobileFactory.createKeePassMobileIO();
+        commandManager = keePassMobileFactory.createCommandManager();
         commandManager.init();
         
         // load icons
@@ -239,8 +250,16 @@ public class KeePassMobile implements Application {
         return platform.getProperty(key);
     }
     
+    public KeePassMobileIO getKeePassMobileIO() {
+        return keePassMobileIO;
+    }
+    
     public CommandManager getCommandManager() {
         return commandManager;
+    }
+    
+    public Random createRandom() {
+        return platform.getKeePassMobileFactory().createRandom();
     }
     
     private Vector getMainMenuItems() {

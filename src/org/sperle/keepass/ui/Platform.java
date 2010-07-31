@@ -1,9 +1,8 @@
 package org.sperle.keepass.ui;
 
-import org.sperle.keepass.ui.command.CommandManager;
 
 /**
- * Platform is the interface, the application can use to call code that
+ * Platform is the interface, the application can use to call code or construct components that
  * depends on the platform the application runs on.
  */
 public interface Platform {
@@ -18,7 +17,7 @@ public interface Platform {
     void exit();
     
     /**
-     * Returns the platform specific command manager.
+     * Returns a KeePassMobileFactory that is able to construct platform specific KeePassMobile components.
      */
-    CommandManager getCommandManager();
+    KeePassMobileFactory getKeePassMobileFactory();
 }

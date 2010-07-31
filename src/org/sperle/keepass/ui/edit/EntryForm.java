@@ -20,8 +20,6 @@
 
 package org.sperle.keepass.ui.edit;
 
-import org.sperle.keepass.KeePassMobileIO;
-import org.sperle.keepass.KeePassMobileIOFactory;
 import org.sperle.keepass.kdb.KdbDate;
 import org.sperle.keepass.kdb.KdbEntry;
 import org.sperle.keepass.kdb.KeePassDatabase;
@@ -284,9 +282,7 @@ public class EntryForm extends IconTitleForm {
         FileChooserForm fileChooser = new FileChooserForm(app, new FileChooserForm.FileChooserCallback() {
             public void choosen(String foldername) {
                 try {
-                    KeePassMobileIOFactory factory = new KeePassMobileIOFactory();
-                    KeePassMobileIO keePassIO = factory.create();
-                    keePassIO.saveAttachment(entry, foldername);
+                    app.getKeePassMobileIO().saveAttachment(entry, foldername);
                     Log.p("Attachment saved successfully", Log.DEBUG);
                     Dialog.show(Messages.get("attachment_saved"), Messages.get("attachment_saved_sucessfully") 
                             + " " + foldername + entry.getBinaryDescription(), Messages.get("ok"), null);
@@ -315,9 +311,7 @@ public class EntryForm extends IconTitleForm {
         FileChooserForm fileChooser = new FileChooserForm(app, new FileChooserForm.FileChooserCallback() {
             public void choosen(String filename) {
                 try {
-                    KeePassMobileIOFactory factory = new KeePassMobileIOFactory();
-                    KeePassMobileIO keePassIO = factory.create();
-                    keePassIO.addAttachment(entry, filename);
+                    app.getKeePassMobileIO().addAttachment(entry, filename);
                     Log.p("Attachment added successfully", Log.DEBUG);
                     addAttachmentComponents();
                     Dialog.show(Messages.get("attachment_added"), Messages.get("attachment_added_sucessfully") 

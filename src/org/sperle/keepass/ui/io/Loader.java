@@ -21,7 +21,6 @@
 package org.sperle.keepass.ui.io;
 
 import org.sperle.keepass.KeePassMobileIO;
-import org.sperle.keepass.KeePassMobileIOFactory;
 import org.sperle.keepass.crypto.KeePassCryptoException;
 import org.sperle.keepass.kdb.KeePassDatabase;
 import org.sperle.keepass.kdb.KeePassDatabaseException;
@@ -33,6 +32,8 @@ import com.sun.lwuit.Dialog;
 import com.sun.lwuit.util.Log;
 
 public class Loader implements Runnable {
+    private KeePassMobileIO keePassMobileIO;
+    
     private ProgressMonitor pm;
     private ProgressDialog pd;
     private KeePassDatabase kdb;
@@ -41,7 +42,8 @@ public class Loader implements Runnable {
     private String password;
     private String keyfile;
     
-    public Loader(String filename, String password, String keyfile) {
+    public Loader(KeePassMobileIO keePassMobileIO, String filename, String password, String keyfile) {
+        this.keePassMobileIO = keePassMobileIO;
         this.filename = filename;
         this.password = password;
         this.keyfile = keyfile;
@@ -89,10 +91,8 @@ public class Loader implements Runnable {
     
     // runs in own thread (not EDT -> no UI code allowed!)
     public void run() {
-        KeePassMobileIOFactory factory = new KeePassMobileIOFactory();
-        KeePassMobileIO keePassIO = factory.create();
         try {
-            kdb = keePassIO.load(filename, password, keyfile, pm);
+            kdb = keePassMobileIO.load(filename, password, keyfile, pm);
         } catch (Exception e) {
             exception = e;
         } finally {
