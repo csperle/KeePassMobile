@@ -34,7 +34,7 @@ public class Locales {
     
     public static void load() {
         try {
-            locales = Properties.load("/org/sperle/keepass/ui/locale/locales.properties");
+            locales = Properties.load("/locales.properties");
         } catch (IOException e) {
             throw new IllegalStateException("locales missing");
         }

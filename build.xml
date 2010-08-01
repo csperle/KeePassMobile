@@ -70,7 +70,7 @@
 		</zip>
 	</target>
 	
-	<target name="collect sources" depends="init">
+	<target name="collect" depends="init">
 		<mkdir dir="${src.build.path}"/>
 		<copy todir="${src.build.path}">
 			<fileset dir="${bc.home}/${src.path}">
@@ -92,7 +92,7 @@
 		</copy>
 	</target>
 		
-	<target name="compile" depends="collect sources">
+	<target name="compile" depends="collect">
 		<mkdir dir="${compiled.build.path}"/>
 		<javac srcdir="${src.build.path}" destdir="${compiled.build.path}" debug="true" nowarn="true" source="1.3" target="1.1">
 			<classpath>
@@ -125,7 +125,6 @@
 			<fileset dir="${keepassmobile.home}/${res.path}">
 				<exclude name="**/.svn/**"/>
 			</fileset>
-			<fileset dir="${keepassmobile.home}/${src.path}" includes="**/*.properties" />
 		</wtkpackage>
 	</target>
 
