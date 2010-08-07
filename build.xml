@@ -82,6 +82,7 @@
 				<exclude name="**/SVGImage.java"/>
 				<exclude name="**/SVGImplementation*.java"/>
 				<exclude name="**/Transition3D.java"/>
+				<exclude name="**/lwuit/html/**"/>
 			</fileset>
 			<fileset dir="${keepassmobileio.home}/${src.path}">
 		        <exclude name="**/.svn/**"/>
