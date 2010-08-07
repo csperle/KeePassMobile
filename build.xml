@@ -141,7 +141,7 @@
 				<path refid="j2me.classpath"/>
 			</bootclasspath>
 			<fileset dir="${preverified.build.path}"/>
-			<fileset dir="${keepassmobile.home}/${res.path}" includes="filechooser.res, kdbicons.res, **/*.png"/>
+			<fileset dir="${keepassmobile.home}/${res.path}" includes="filechooser.res, kdbicons.res, locales.properties, **/*.png"/>
 			<fileset dir="${keepassmobile.home}/${res_mini.path}" includes="**/*.res, **/*.png"/>
 		</wtkpackage>
 	</target>
