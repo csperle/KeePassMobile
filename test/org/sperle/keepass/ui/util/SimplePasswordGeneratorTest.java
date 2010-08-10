@@ -29,8 +29,8 @@ public class SimplePasswordGeneratorTest extends KeePassMobileTest {
         rand.setRandomInt(new int[]{0,1,2});
 	assertEquals("abc", spg.generatePassword(3, true, false, false, false));
 	rand.setRandomInt(new int[]{0,23,46,54});
-        assertEquals("aA2!", spg.generatePassword(3, true, true, true, true));
+        assertEquals("aA2!", spg.generatePassword(4, true, true, true, true));
         rand.setRandomInt(new int[]{0,23});
-        assertEquals("A!", spg.generatePassword(3, false, true, false, true));
+        assertEquals("A!", spg.generatePassword(2, false, true, false, true));
     }
 }
