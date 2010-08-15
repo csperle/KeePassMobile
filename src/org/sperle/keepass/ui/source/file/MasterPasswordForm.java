@@ -71,7 +71,7 @@ public class MasterPasswordForm extends KeePassMobileForm {
         };
         commands[2] = new Command(Messages.get("help")) {
             public void actionPerformed(ActionEvent evt) {
-                Forms.showHelp(Messages.get("masterpassword_help")); // TODO write masterpassword help
+                Forms.showHelp(Messages.get("masterpassword_help"));
             }
         };
         commands[3] = new Command(Messages.get("cancel")) {

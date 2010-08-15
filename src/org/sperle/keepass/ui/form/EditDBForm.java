@@ -171,7 +171,6 @@ public class EditDBForm extends KeePassMobileForm {
         }
     }
     
-    // TODO test add/change/remove keyfile before release V0.9
     private void setKeyFile() {
         FileChooserForm fileChooser = new FileChooserForm(app, new FileChooserForm.FileChooserCallback() {
             public void choosen(String filename) {

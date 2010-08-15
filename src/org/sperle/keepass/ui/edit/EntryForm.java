@@ -306,7 +306,6 @@ public class EntryForm extends IconTitleForm {
         fileChooser.show();
     }
     
-    // TODO test add/remove attachment before release V0.9
     private void addAttachment() {
         FileChooserForm fileChooser = new FileChooserForm(app, new FileChooserForm.FileChooserCallback() {
             public void choosen(String filename) {

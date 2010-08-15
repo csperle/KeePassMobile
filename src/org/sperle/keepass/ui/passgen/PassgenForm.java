@@ -91,7 +91,7 @@ public class PassgenForm extends KeePassMobileForm {
         commands[0] = backCommand;
         commands[1] = new Command(Messages.get("help")) {
             public void actionPerformed(ActionEvent evt) {
-                Forms.showHelp(Messages.get("passgen_help")); // TODO write password generator help
+                Forms.showHelp(Messages.get("passgen_help"));
             }
         };
         return commands;

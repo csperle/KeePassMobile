@@ -56,7 +56,7 @@ public class TreeListCellRenderer extends Label implements ListCellRenderer {
         
         if(value instanceof KdbGroupV1) {
             KdbGroupV1 group = (KdbGroupV1)value;
-            // TODO enable in preferences:
+            // NICETOHAVE enable in preferences:
             //setText(" " + group.getName() + " (" + kdb.getChildGroups(group).size() + "/" + kdb.getEntries(group).size() + ")");
             setText(" "+group.getName());
             

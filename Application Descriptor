@@ -3,7 +3,7 @@ MIDlet-1: KeePassMobile,/keepassmobile.png,org.sperle.keepass.ui.KeePassMobileMI
 MIDlet-Jar-URL: http://m.keepassmobile.com/KeePassMobile.jar
 MIDlet-Permissions-Opt: javax.microedition.io.Connector.file.write
 KPM-DefaultLanguage: en
-KPM-BetaVersion: true
+KPM-BetaVersion: false
 MicroEdition-Configuration: CLDC-1.1
 MIDlet-Version: 0.9
 MIDlet-Name: KeePassMobile
