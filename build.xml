@@ -3,6 +3,7 @@
 	<property name="wtk.proguard.home" value="/opt/proguard4.4"/>
 	<property name="antenna.home" value="/opt/antenna-1.2.1-beta"/>
 	<property name="findbugs.home" value="/opt/findbugs-1.3.9"/>
+	<property name="checkstyle.home" value="/opt/checkstyle-5.1"/>
 	
 	<property name="keepassmobile.home" value="."/>
     <property name="keepassmobileio.home" value="../KeePassMobileIO"/>
@@ -32,6 +33,7 @@
 	
 	<taskdef classpath="${antenna.home}/antenna.jar" resource="antenna.properties" />
 	<taskdef classpath="${findbugs.home}/lib/findbugs-ant.jar" resource="edu/umd/cs/findbugs/anttask/tasks.properties"/>
+	<taskdef classpath="${checkstyle.home}/checkstyle-all-5.1.jar" resource="checkstyletask.properties"/>
 	
 	<path id="j2me.classpath">
 		<fileset dir="${wtk.home}/lib">
@@ -160,6 +162,13 @@
 	    </findbugs>
 	</target>
 	
+	<target name="checkstyle" depends="collect">
+		<checkstyle config="checkstyle.xml" failOnViolation="false">
+			<fileset dir="${src.build.path}" includes="org/sperle/keepass/**/*.java" />
+			<formatter type="xml" toFile="${report.path}/checkstyle-result.xml" />
+		</checkstyle>
+	</target>
+	
 	<target name="cleanup">
 	    <delete dir="${build.path}"/>
 	</target>
@@ -174,5 +183,5 @@
 	
 	<target name="default" depends="src, j2me, cleanup"/>
 	
-	<target name="ci" depends="src, j2me, j2me_mini, findbugs, cleanup"/>
+	<target name="ci" depends="src, j2me, j2me_mini, findbugs, checkstyle, cleanup"/>
 </project>
