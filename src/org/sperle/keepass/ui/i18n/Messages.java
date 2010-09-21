@@ -27,7 +27,7 @@ import com.sun.lwuit.plaf.UIManager;
 import com.sun.lwuit.util.Resources;
 
 public class Messages {
-    public static final String SUPPORTED_LANGS[] = {"da", "de", "en", "es", "he", "it", "nl", "nn", "sv", "ru", "uk", "zh"};
+    public static final String SUPPORTED_LANGS[] = {"da", "de", "en", "es", "he", "it", "nl", "nn", "pl", "ru", "sv", "uk", "zh"};
     
     private static Resources langs;
     private static String selectedLang;
