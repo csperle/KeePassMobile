@@ -59,15 +59,15 @@
 		<mkdir dir="${report.path}"/>
 	</target>
 	
-	<!-- TODO fix creation of src package (also include licenses in dev/licenses) -->
 	<target name="src" depends="init">
 		<mkdir dir="${src.deploy.path}"/>
 		<zip destfile="${src.deploy.path}/keepassmobile-src.zip">
 			<zipfileset dir="${keepassmobile.home}/${src.path}" prefix="src"/>
 			<zipfileset dir="${keepassmobileio.home}/${src.path}" prefix="src"/>
-			<!-- zipfileset dir="${keepassmobile.home}/${lib.path}" excludes="keepassmobileio.jar" prefix="lib"/ -->
+			<zipfileset dir="${keepassmobile.home}/dev/lib" prefix="lib"/>
 			<zipfileset dir="${keepassmobile.home}/${res.path}" prefix="res"/>
 			<zipfileset dir="${keepassmobileio.home}/${res.path}" prefix="res"/>
+			<zipfileset file="${keepassmobile.home}/dev/licenses/Icons-License.txt" prefix="res"/>
 			<zipfileset dir="${keepassmobile.home}" includes="License.txt"/>
 		</zip>
 	</target>

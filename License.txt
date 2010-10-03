@@ -1,4 +1,4 @@
-KeePassMobile is Copyright (c) 2009 Christoph Sperle <keepassmobile@gmail.com>
+KeePassMobile is Copyright (c) 2009-2010 Christoph Sperle <keepassmobile@gmail.com>
 
 
                     GNU GENERAL PUBLIC LICENSE
