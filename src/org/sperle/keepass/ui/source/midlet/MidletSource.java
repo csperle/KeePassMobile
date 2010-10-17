@@ -28,7 +28,6 @@ import org.sperle.keepass.crypto.KeePassCryptoException;
 import org.sperle.keepass.kdb.KeePassDatabase;
 import org.sperle.keepass.kdb.KeePassDatabaseException;
 import org.sperle.keepass.monitor.ProgressMonitor;
-import org.sperle.keepass.ui.KeePassMobile;
 import org.sperle.keepass.ui.form.ProgressDialog;
 import org.sperle.keepass.ui.i18n.Messages;
 import org.sperle.keepass.ui.menu.MenuItem;
@@ -41,18 +40,12 @@ public class MidletSource implements MenuItem, Runnable {
     private static final String TEST_DB = "test.kdb";
     private static final String TEST_PASSWORD = "ÖÄÜöäüß_@!\"§$%&/()[]=*\\n";
     
-    private KeePassMobile app;
-    
     // used to communicate between EDT and background thread
     private ProgressMonitor pm;
     private ProgressDialog pd;
     private KeePassDatabase kdb;
     private Exception exception;
     
-    public MidletSource(KeePassMobile app) {
-        this.app = app;
-    }
-
     public void choosen() {
         Log.p("Trying to load and decrypt test database file [test.kdb]...", Log.DEBUG);
         
@@ -83,7 +76,7 @@ public class MidletSource implements MenuItem, Runnable {
             Log.p("Test database file loaded and decrypted successfully", Log.DEBUG);
         }
         
-        TreeForm treeForm = new TreeForm(app, kdb, null);
+        TreeForm treeForm = new TreeForm(kdb, null);
         kdb = null; // delete references used by background thread, before EDT moves on
         treeForm.show();
     }

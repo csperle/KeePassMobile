@@ -21,9 +21,10 @@
 package org.sperle.keepass.ui.form;
 
 import org.sperle.keepass.ui.KeePassMobile;
+import org.sperle.keepass.ui.command.FormCommands;
+import org.sperle.keepass.ui.command.KeePassMobileCommand;
 import org.sperle.keepass.ui.i18n.Messages;
 
-import com.sun.lwuit.Command;
 import com.sun.lwuit.Display;
 import com.sun.lwuit.Form;
 import com.sun.lwuit.events.ActionEvent;
@@ -33,25 +34,23 @@ import com.sun.lwuit.events.ActionEvent;
  */
 public abstract class KeePassMobileForm extends Form {
     
-    protected final KeePassMobile app;
     protected final Form previousForm;
-    protected final Command backCommand;
+    private final FormCommands commands;
     
-    public KeePassMobileForm(final KeePassMobile app) {
+    public KeePassMobileForm() {
         super();
-        this.app = app;
         this.previousForm = Display.getInstance().getCurrent();
-        this.backCommand = new Command(Messages.get("back")) {
+        this.setBackCommand(new KeePassMobileCommand(Messages.get("back")) {
             public void actionPerformed(ActionEvent ev) {
                 Forms.setNoTransitionOut(KeePassMobileForm.this);
                 goBack();
             }
-        };
-        this.setBackCommand(backCommand);
+        });
+        this.commands = KeePassMobile.instance().getCommandManager().getCommands(this);
     }
     
-    public KeePassMobileForm(final KeePassMobile app, String title) {
-        this(app);
+    public KeePassMobileForm(String title) {
+        this();
         this.setTitle(title);
     }
     
@@ -68,6 +67,11 @@ public abstract class KeePassMobileForm extends Form {
     public void keyPressed(int keyCode) {
         super.keyPressed(keyCode);
         
-        app.keyPressed();
+        KeePassMobile.instance().keyPressed();
+    }
+
+    public void updateCommands() {
+        this.commands.update();
+        KeePassMobile.instance().getCommandManager().updateCommands(this, commands);
     }
 }

@@ -20,14 +20,12 @@
 
 package org.sperle.keepass.ui.form;
 
-import org.sperle.keepass.ui.KeePassMobile;
-
 import com.sun.lwuit.Image;
 
 public class IconTitleForm extends KeePassMobileForm {
 
-    public IconTitleForm(final KeePassMobile app, Image icon, String title) {
-        super(app, title);
+    public IconTitleForm(Image icon, String title) {
+        super(title);
         if(icon != null) setTitleIcon(icon);
     }
     

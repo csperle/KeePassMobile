@@ -20,7 +20,6 @@
 
 package org.sperle.keepass.ui.tree;
 
-import java.io.IOException;
 import java.util.Vector;
 
 import org.sperle.keepass.kdb.KdbEntry;
@@ -28,22 +27,12 @@ import org.sperle.keepass.kdb.KdbGroup;
 import org.sperle.keepass.kdb.KdbItem;
 import org.sperle.keepass.kdb.KeePassDatabase;
 import org.sperle.keepass.ui.KeePassMobile;
-import org.sperle.keepass.ui.command.ChangeTitleCommand;
 import org.sperle.keepass.ui.edit.EntryForm;
-import org.sperle.keepass.ui.edit.GroupForm;
-import org.sperle.keepass.ui.form.EditDBForm;
 import org.sperle.keepass.ui.form.Forms;
 import org.sperle.keepass.ui.form.ItemListForm;
-import org.sperle.keepass.ui.form.StatisticsForm;
-import org.sperle.keepass.ui.i18n.Messages;
-import org.sperle.keepass.ui.io.Saver;
-import org.sperle.keepass.ui.search.SearchForm;
 import org.sperle.keepass.ui.settings.Settings;
-import org.sperle.keepass.ui.source.file.FileChooserForm;
 import org.sperle.keepass.ui.util.Vectors;
 
-import com.sun.lwuit.Command;
-import com.sun.lwuit.Dialog;
 import com.sun.lwuit.Display;
 import com.sun.lwuit.List;
 import com.sun.lwuit.events.ActionEvent;
@@ -51,17 +40,14 @@ import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.events.SelectionListener;
 import com.sun.lwuit.layouts.BorderLayout;
 import com.sun.lwuit.list.DefaultListModel;
-import com.sun.lwuit.util.Log;
 
 public class TreeForm extends ItemListForm {
     private KeePassDatabase kdb;
     private KdbGroup parentGroup;
     private List list;
     
-    private Command defaultCommand;
-    
-    public TreeForm(final KeePassMobile app, final KeePassDatabase kdb, final KdbGroup parentGroup) {
-        super(app);
+    public TreeForm(final KeePassDatabase kdb, final KdbGroup parentGroup) {
+        super();
         this.kdb = kdb;
         this.parentGroup = parentGroup;
         
@@ -76,16 +62,13 @@ public class TreeForm extends ItemListForm {
         setLayout(new BorderLayout());
         setScrollable(false);
         
-        // is called implicitly with SelectionListener
-        //app.getCommandManager().addCommands(this, createCommands(), defaultCommand);
-        
         list = new List(getTreeObjects());
-        if(app.getSettings().getBoolean(Settings.QUICK_VIEW))
-             list.setListCellRenderer(new QuickViewTreeListCellRenderer(app, kdb, app.isFastUI()));
-        else list.setListCellRenderer(new TreeListCellRenderer(app, kdb, app.isFastUI()));
+        if(KeePassMobile.instance().getSettings().getBoolean(Settings.QUICK_VIEW))
+             list.setListCellRenderer(new QuickViewTreeListCellRenderer(kdb));
+        else list.setListCellRenderer(new TreeListCellRenderer(kdb));
         list.setOrientation(List.VERTICAL);
         list.setFixedSelection(List.FIXED_NONE_CYCLIC);
-        if(!app.isFastUI()) list.setSmoothScrolling(true);
+        if(!KeePassMobile.instance().isFastUI()) list.setSmoothScrolling(true);
         else list.setSmoothScrolling(false);
         list.addSelectionListener(new SelectionListener() {
             public void selectionChanged(int oldSelected, int newSelected) {
@@ -98,7 +81,7 @@ public class TreeForm extends ItemListForm {
 //                        TreeForm.this.revalidate();
 //                    }
 //                }
-                app.getCommandManager().addCommands(TreeForm.this, createCommands(), defaultCommand);
+                updateCommands();
             }
         });
         list.addActionListener(new ActionListener() {
@@ -126,117 +109,8 @@ public class TreeForm extends ItemListForm {
             }
         });
         addComponent(BorderLayout.CENTER, list);
-    }
-    
-    private Command[] createCommands() {
-        KdbItem selected = (KdbItem)list.getSelectedItem();
-        
-        int i = 0;
-        Command[] commands = new Command[13];
-        commands[i++] = new Command(Messages.get("search")) {
-            public void actionPerformed(ActionEvent evt) {
-                SearchForm.create(app, kdb).show();
-            }
-        };
-        if(selected != null && !kdb.isBackupItem(selected)) {
-            commands[i++] = new ChangeTitleCommand((selected instanceof KdbGroup) ? "edit_group" : "edit_entry") {
-                public void actionPerformed(ActionEvent evt) { 
-                    if(list.getSelectedItem() != null) {
-                        editSelectedItem();
-                    }
-                }
-            };
-        }
-        if(selected != null && !(kdb.isBackupItem(selected) && selected instanceof KdbGroup)) {
-            commands[i++] = new ChangeTitleCommand((selected instanceof KdbGroup) ? "delete_group" : "delete_entry") {
-                public void actionPerformed(ActionEvent evt) { 
-                    if(list.getSelectedItem() != null) {
-                        deleteItem(list.getSelectedItem());
-                    }
-                }
-            };
-        }
-        if(parentGroup != null && !kdb.isBackupGroup(parentGroup)) { // do not show on root and in backup group
-            commands[i++] = new Command(Messages.get("create_entry")) {
-                public void actionPerformed(ActionEvent evt) {
-                    new EntryForm(app, kdb, kdb.createEntry(parentGroup), true, app.isFastUI()).show();
-                }
-            };
-        }
-        if(parentGroup == null || !kdb.isBackupGroup(parentGroup)) { // do not show in backup group
-            commands[i++] = new Command(Messages.get("create_group")) {
-                public void actionPerformed(ActionEvent evt) {
-                    new GroupForm(app, kdb, kdb.createGroup(parentGroup), true).show();
-                }
-            };
-        }
-        if(selected != null && selected instanceof KdbEntry) {
-            commands[i++] = new ChangeTitleCommand("cut_entry") {
-                public void actionPerformed(ActionEvent evt) { 
-                    if(list.getSelectedItem() != null && list.getSelectedItem() instanceof KdbEntry) {
-                        cutSelectedEntry();
-                    }
-                }
-            };
-        }
-        if(app.getClipboardEntry() != null && parentGroup != null && !kdb.isBackupGroup(parentGroup)) { // do not show on root and in backup group
-            commands[i++] = new ChangeTitleCommand("paste_entry") {
-                public void actionPerformed(ActionEvent evt) {
-                    if(app.getClipboardEntry() != null) {
-                        pasteClipboardEntry();
-                    }
-                }
-            };
-        }
-        if(parentGroup != null) { // do not show on root
-            commands[i++] = new Command(Messages.get("top")) {
-                public void actionPerformed(ActionEvent evt) {
-                    showRootGroups();
-                }
-            };
-        }
-        if(parentGroup == null) { // only show on root
-            commands[i++] = new Command(Messages.get("edit_db")) {
-                public void actionPerformed(ActionEvent evt) {
-                    new EditDBForm(app, kdb, app.isFastUI()).show();
-                }
-            };
-        }
-        if(parentGroup == null && kdb.getPerformanceStatistics() != null) { // only show on root and if not newly created
-            commands[i++] = new Command(Messages.get("stats")) {
-                public void actionPerformed(ActionEvent evt) {
-                    StatisticsForm.create(app, kdb).show();
-                }
-            };
-        }
-        commands[i++] = new Command(Messages.get("help")) {
-            public void actionPerformed(ActionEvent evt) {
-                Forms.showHelp(Messages.get("tree_help"));
-            }
-        };
-        if(kdb.hasChanged()) {
-            commands[i++] = new Command(Messages.get("save")) {
-                public void actionPerformed(ActionEvent evt) {
-                    saveDatabase(false);
-                }
-            };
-        }
-        commands[i++] = new Command(Messages.get("close")) {
-            public void actionPerformed(ActionEvent evt) {
-                if(kdb.hasChanged()) {
-                    if(Dialog.show(Messages.get("save_changes"), Messages.get("save_changes_text"), Messages.get("yes"), Messages.get("no"))) {
-                        saveDatabase(true);
-                    } else {
-                        closeDatabase();
-                    }
-                } else {
-                    closeDatabase();
-                }
-            }
-        };
-        
-        defaultCommand = commands[0]; // search
-        return commands;
+        // is called implicitly with SelectionListener
+        // updateCommands();
     }
     
     protected void goBack() {
@@ -245,59 +119,9 @@ public class TreeForm extends ItemListForm {
         }
     }
     
-    private void saveDatabase(final boolean closeAfterSave) {
-        if(kdb.getFileName().startsWith("file:")) { // file URL: db was loaded from file
-            new Saver(app.getKeePassMobileIO(), kdb).save();
-            Dialog.show(Messages.get("db_saved"), Messages.get("db_saved_sucessfully") 
-                    + " " + kdb.getFileName(), Messages.get("ok"), null);
-            if(closeAfterSave) closeDatabase();
-        } else {  // no file URL: db was newly created and the filename field of the db only holds the given name (during creation)
-            FileChooserForm fileChooser = new FileChooserForm(app, new FileChooserForm.FileChooserCallback() {
-                public void choosen(String foldername) {
-                    String filename = foldername + (foldername.endsWith("/") ? "" : "/") + 
-                            (kdb.getFileName().endsWith(".kdb") ? kdb.getFileName() : (kdb.getFileName() + ".kdb"));
-                    Saver saver = new Saver(app.getKeePassMobileIO(), kdb);
-                    saver.setFilename(filename);
-                    if(saver.save()) {
-                        Dialog.show(Messages.get("db_saved"), Messages.get("db_saved_sucessfully") 
-                                + " " + filename, Messages.get("ok"), null);
-                    }
-                    try {
-                        if(app.getSettings().available()) app.getSettings().set(Settings.LAST_FILE, filename);
-                        if(app.getSettings().available()) app.getSettings().set(Settings.LAST_FOLDER, filename.substring(0, filename.lastIndexOf('/')+1));
-                    } catch (IOException e) {
-                        Log.p("Could not write last file settings - " + e.toString(), Log.ERROR);
-                    }
-                    
-                    if(closeAfterSave) closeDatabase();
-                    else TreeForm.this.show();
-                }
-                public void canceled() {
-                    if(closeAfterSave) closeDatabase();
-                    else TreeForm.this.show();
-                }
-                public void errorOccured(Exception e) {
-                    Log.p("Error choosing folder to save database file - " + e.toString(), Log.ERROR);
-                    Dialog.show(Messages.get("choosing_error"), Messages.get("choosing_error_text") + e.getMessage(), Messages.get("ok"), null);
-                    if(closeAfterSave) closeDatabase();
-                    else TreeForm.this.show();
-                }
-            }, app.isFastUI());
-            fileChooser.setDirectoriesOnly(true);
-            fileChooser.show();
-        }
-    }
-    
-    private void closeDatabase() {
-        kdb.close();
-        app.emptyClipboard();
-        app.stopSecurityTimer();
-        app.showMainMenu();
-    }
-    
     private DefaultListModel getTreeObjects() {
         Vector entries = parentGroup == null ? kdb.getRootGroups() : Vectors.append(kdb.getChildGroups(parentGroup), kdb.getEntries(parentGroup));
-        if(!app.getSettings().getBoolean(Settings.SHOW_BACKUP)) {
+        if(!KeePassMobile.instance().getSettings().getBoolean(Settings.SHOW_BACKUP)) {
             Object backupGroup = null;
             for (int i = 0; i < entries.size(); i++) {
                 if (entries.elementAt(i) instanceof KdbGroup) {
@@ -319,54 +143,7 @@ public class TreeForm extends ItemListForm {
     
     public void refresh() {
         list.setModel(getTreeObjects());
-        app.getCommandManager().addCommands(this, createCommands(), defaultCommand);
-    }
-    
-    private void editSelectedItem() {
-        Object selectedItem = list.getSelectedItem();
-        if(selectedItem instanceof KdbGroup) {
-            showGroup();
-        } else {
-            showEntry(true);
-        }
-    }
-    
-    private void cutSelectedEntry() {
-        KdbEntry selectedItem = (KdbEntry) list.getSelectedItem();
-        app.addToClipboard(selectedItem);
-    }
-    
-    private void pasteClipboardEntry() {
-        kdb.moveEntry(app.getClipboardEntry(), parentGroup);
-        app.emptyClipboard();
-        app.getCommandManager().addCommands(this, createCommands(), defaultCommand);
-        refresh();
-    }
-    
-    private void deleteItem(Object selectedItem) {
-        if(selectedItem instanceof KdbGroup) {
-            if(kdb.isEmpty((KdbGroup)selectedItem)) {
-                if(Dialog.show(Messages.get("delete_group"), Messages.get("delete_group_text"), Messages.get("yes"), Messages.get("no"))) {
-                    kdb.removeGroup((KdbGroup)selectedItem);
-                    refresh();
-                }
-            } else {
-                Dialog.show(Messages.get("group_notempty"), Messages.get("group_notempty_text"), Messages.get("ok"), null);
-            }
-        } else {
-            KdbEntry selectedEntry = (KdbEntry)selectedItem;
-            if(kdb.isBackupEntry(selectedEntry)) {
-                if(Dialog.show(Messages.get("delete_forever"), Messages.get("delete_forever_text"), Messages.get("yes"), Messages.get("no"))) {
-                    kdb.removeEntry(selectedEntry);
-                    refresh();
-                }
-            } else {
-                if(Dialog.show(Messages.get("delete_entry"), Messages.get("delete_entry_text"), Messages.get("yes"), Messages.get("no"))) {
-                    kdb.removeEntry(selectedEntry);
-                    refresh();
-                }
-            }
-        }
+        updateCommands();
     }
     
     private void showSelectedItem() {
@@ -379,31 +156,32 @@ public class TreeForm extends ItemListForm {
     }
     
     private void showChilds() {
-        Forms.setTransitionOut(this, true, app.isFastUI());
-        TreeForm treeForm = new TreeForm(app, kdb, (KdbGroup)list.getSelectedItem());
+        Forms.setTransitionOut(this, true);
+        TreeForm treeForm = new TreeForm(kdb, (KdbGroup)list.getSelectedItem());
         treeForm.show();
+    }
+
+    private void showEntry(boolean editTitle) {
+        Forms.setNoTransitionOut(this);
+        new EntryForm((KdbEntry)list.getSelectedItem(), editTitle).show();
     }
     
     private void showParents() {
-        Forms.setTransitionOut(this, false, app.isFastUI());
-        TreeForm treeForm = new TreeForm(app, kdb, kdb.getParentGroup(parentGroup));
+        Forms.setTransitionOut(this, false);
+        TreeForm treeForm = new TreeForm(kdb, kdb.getParentGroup(parentGroup));
         treeForm.setSelected(parentGroup);
         treeForm.show();
     }
     
-    private void showEntry(boolean editTitle) {
-        Forms.setNoTransitionOut(this);
-        new EntryForm(app, kdb, (KdbEntry)list.getSelectedItem(), editTitle, app.isFastUI()).show();
+    public KeePassDatabase getKdb() {
+        return kdb;
     }
     
-    private void showGroup() {
-        Forms.setNoTransitionOut(this);
-        new GroupForm(app, kdb, (KdbGroup)list.getSelectedItem(), false).show();
+    public List getList() {
+        return list;
     }
-    
-    private void showRootGroups() {
-        Forms.setTransitionOut(this, false, app.isFastUI());
-        TreeForm treeForm = new TreeForm(app, kdb, null);
-        treeForm.show();
+
+    public KdbGroup getParentGroup() {
+        return parentGroup;
     }
 }

@@ -35,24 +35,18 @@ import com.sun.lwuit.util.Log;
 
 public class CreateDatabaseSource implements MenuItem {
     
-    private KeePassMobile app;
-    
-    public CreateDatabaseSource(KeePassMobile app) {
-        this.app = app;
-    }
-
     public void choosen() {
-        CreateDatabaseForm createdbForm = new CreateDatabaseForm(app, this);
+        CreateDatabaseForm createdbForm = new CreateDatabaseForm(this);
         createdbForm.show();
     }
     
     protected void creationCanceled() {
         Log.p("Database creation canceled", Log.DEBUG);
-        app.showMainMenu();
+        KeePassMobile.instance().showMainMenu();
     }
     
     protected void openKeyFile(final String dbname, final String password) {
-        FileChooserForm fileChooser = new FileChooserForm(app, new FileChooserForm.FileChooserCallback() {
+        FileChooserForm fileChooser = new FileChooserForm(new FileChooserForm.FileChooserCallback() {
             public void choosen(String keyfilename) {
                 create(dbname, password, keyfilename);
             }
@@ -62,21 +56,21 @@ public class CreateDatabaseSource implements MenuItem {
             public void errorOccured(Exception e) {
                 Log.p("Error choosing key file - " + e.toString(), Log.ERROR);
                 Dialog.show(Messages.get("choosing_error"), Messages.get("choosing_error_text") + e.getMessage(), Messages.get("ok"), null);
-                app.showMainMenu();
+                KeePassMobile.instance().showMainMenu();
             }
-        }, app.isFastUI());
+        });
         fileChooser.show();
     }
     
     protected void create(String dbname, String password, String keyfile) {
         if(dbname == null || dbname.length() == 0) {
             Dialog.show(Messages.get("dbname_empty"), Messages.get("dbname_empty_text"), Messages.get("ok"), null);
-            app.showMainMenu();
+            KeePassMobile.instance().showMainMenu();
             return;
         }
         if((password == null || password.length() == 0) && (keyfile == null || keyfile.length() == 0)) {
             Dialog.show(Messages.get("password_empty"), Messages.get("password_empty_text"), Messages.get("ok"), null);
-            app.showMainMenu();
+            KeePassMobile.instance().showMainMenu();
             return;
         }
         
@@ -84,11 +78,11 @@ public class CreateDatabaseSource implements MenuItem {
         
         KeePassDatabase kdb = null;
         try {
-            kdb = app.getKeePassMobileIO().create(dbname, password, keyfile);
+            kdb = KeePassMobile.instance().getKeePassMobileIO().create(dbname, password, keyfile);
         } catch (IOException e) {
             Log.p("Could not load key file - " + e.toString(), Log.ERROR);
             Dialog.show(Messages.get("keyfile_error"), Messages.get("keyfile_error_text") + e.getMessage(), Messages.get("ok"), null);
-            app.showMainMenu();
+            KeePassMobile.instance().showMainMenu();
             return;
         }
         
@@ -96,9 +90,9 @@ public class CreateDatabaseSource implements MenuItem {
         createDefaultLayout(kdb);
         Log.p("Initialized layout of new database successfully", Log.DEBUG);
         
-        app.startSecurityTimer(kdb);
+        KeePassMobile.instance().startSecurityTimer(kdb);
         
-        TreeForm treeForm = new TreeForm(app, kdb, null);
+        TreeForm treeForm = new TreeForm(kdb, null);
         treeForm.show();
     }
 

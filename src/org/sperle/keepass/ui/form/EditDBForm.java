@@ -23,9 +23,7 @@ package org.sperle.keepass.ui.form;
 import org.sperle.keepass.kdb.KeePassDatabase;
 import org.sperle.keepass.ui.KeePassMobile;
 import org.sperle.keepass.ui.i18n.Messages;
-import org.sperle.keepass.ui.source.file.FileChooserForm;
 
-import com.sun.lwuit.Command;
 import com.sun.lwuit.Dialog;
 import com.sun.lwuit.Display;
 import com.sun.lwuit.Label;
@@ -33,7 +31,6 @@ import com.sun.lwuit.TextArea;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.BoxLayout;
-import com.sun.lwuit.util.Log;
 
 public class EditDBForm extends KeePassMobileForm {
     public final static int MIN_ROUNDS = 50;
@@ -42,8 +39,6 @@ public class EditDBForm extends KeePassMobileForm {
     
     private KeePassDatabase kdb;
     
-    private boolean fastUI;
-    
     private Label roundsLabel;
     private TextArea roundsField;
     private Label passwdLabel;
@@ -51,20 +46,12 @@ public class EditDBForm extends KeePassMobileForm {
     private Label passwd2Label;
     private TextArea passwd2Field;
     
-    private Command addKeyCommand;
-    private Command changeKeyCommand;
-    private Command delKeyCommand;
-    private Command defaultCommand;
-    
-    public EditDBForm(final KeePassMobile app, final KeePassDatabase kdb, boolean fastUI) {
-        super(app, Messages.get("edit_db"));
+    public EditDBForm(final KeePassDatabase kdb) {
+        super(Messages.get("edit_db"));
         this.kdb = kdb;
-        this.fastUI = fastUI;
         
         setLayout(new BoxLayout(BoxLayout.Y_AXIS));
         setScrollableY(true);
-        
-        app.getCommandManager().addCommands(this, createCommands(), defaultCommand);
         
         roundsLabel = new Label(Messages.get("editdb_rounds"));
         addComponent(roundsLabel);
@@ -80,14 +67,14 @@ public class EditDBForm extends KeePassMobileForm {
         passwdLabel = new Label(Messages.get("editdb_newpasswd"));
         addComponent(passwdLabel);
         passwdField = new TextArea();
-        if(!app.isPasswordFieldWorkaroundEnabled()) {
+        if(!KeePassMobile.instance().isPasswordFieldWorkaroundEnabled()) {
             passwdField.setConstraint(TextArea.ANY | TextArea.PASSWORD);
         }
         addComponent(passwdField);
         passwd2Label = new Label(Messages.get("editdb_confirmpasswd"));
         addComponent(passwd2Label);
         passwd2Field = new TextArea();
-        if(!app.isPasswordFieldWorkaroundEnabled()) {
+        if(!KeePassMobile.instance().isPasswordFieldWorkaroundEnabled()) {
             passwd2Field.setConstraint(TextArea.ANY | TextArea.PASSWORD);
         }
         passwd2Field.addActionListener(new ActionListener() {
@@ -111,46 +98,7 @@ public class EditDBForm extends KeePassMobileForm {
             }
         });
         addComponent(passwd2Field);
-    }
-    
-    private Command[] createCommands() {
-        int i = 0;
-        Command[] commands = new Command[kdb.hasKeyFile() ? 4 : 3];
-        if(addKeyCommand == null) {
-            addKeyCommand = new Command(Messages.get("add_keyfile")) {
-                public void actionPerformed(ActionEvent evt) {
-                    setKeyFile();
-                }
-            };
-        }
-        if(!kdb.hasKeyFile()) commands[i++] = addKeyCommand;
-        if(changeKeyCommand == null) {
-            changeKeyCommand = new Command(Messages.get("change_keyfile")) {
-                public void actionPerformed(ActionEvent evt) {
-                    setKeyFile();
-                }
-            };
-        }
-        if(kdb.hasKeyFile()) commands[i++] = changeKeyCommand;
-        if(delKeyCommand == null) {
-            delKeyCommand = new Command(Messages.get("del_keyfile")) {
-                public void actionPerformed(ActionEvent evt) {
-                    kdb.removeKeyFile();
-                    app.getCommandManager().addCommands(EditDBForm.this, createCommands(), defaultCommand);
-                    Dialog.show(Messages.get("keyfile_removed"), Messages.get("keyfile_removed_text"), Messages.get("ok"), null);
-                }
-            };
-        }
-        if(kdb.hasKeyFile()) commands[i++] = delKeyCommand;
-        commands[i++] = new Command(Messages.get("help")) {
-            public void actionPerformed(ActionEvent evt) {
-                Forms.showHelp(Messages.get("editdb_help"));
-            }
-        };
-        commands[i++] = backCommand;
-        
-        defaultCommand = backCommand;
-        return commands;
+        updateCommands();
     }
     
     private int getRounds() {
@@ -171,30 +119,7 @@ public class EditDBForm extends KeePassMobileForm {
         }
     }
     
-    private void setKeyFile() {
-        FileChooserForm fileChooser = new FileChooserForm(app, new FileChooserForm.FileChooserCallback() {
-            public void choosen(String filename) {
-                try {
-                    app.getKeePassMobileIO().setKeyFile(kdb, filename);
-                    Log.p("Keyfile added/changed successfully", Log.DEBUG);
-                    app.getCommandManager().addCommands(EditDBForm.this, createCommands(), defaultCommand);
-                    Dialog.show(Messages.get("keyfile_set"), Messages.get("keyfile_set_sucessfully"), Messages.get("ok"), null);
-                } catch (Exception e) {
-                    Log.p("Error adding/changing keyfile - " + e.toString(), Log.ERROR);
-                    Dialog.show(Messages.get("loading_error"), Messages.get("loading_error_text") + e.getMessage(), Messages.get("ok"), null);
-                } finally {
-                    EditDBForm.this.show();
-                }
-            }
-            public void canceled() {
-                EditDBForm.this.show();
-            }
-            public void errorOccured(Exception e) {
-                Log.p("Error choosing keyfile - " + e.toString(), Log.ERROR);
-                Dialog.show(Messages.get("choosing_error"), Messages.get("choosing_error_text") + e.getMessage(), Messages.get("ok"), null);
-                EditDBForm.this.show();
-            }
-        }, fastUI);
-        fileChooser.show();
+    public KeePassDatabase getKdb() {
+        return kdb;
     }
 }

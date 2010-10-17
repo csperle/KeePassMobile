@@ -20,6 +20,7 @@
 
 package org.sperle.keepass.ui.source.file;
 
+import org.sperle.keepass.ui.KeePassMobile;
 import org.sperle.keepass.ui.font.Fonts;
 import org.sperle.keepass.ui.icon.Icons;
 
@@ -29,11 +30,6 @@ import com.sun.lwuit.List;
 import com.sun.lwuit.list.ListCellRenderer;
 
 public class FileChooserListCellRenderer extends Label implements ListCellRenderer {
-    private boolean fastUI;
-    
-    public FileChooserListCellRenderer(boolean fastUI) {
-        this.fastUI = fastUI;
-    }
     
     public Component getListCellRendererComponent(List list, Object value, int index, boolean isSelected) {
         if(value instanceof FileChooserForm.UpDirectory) {
@@ -48,11 +44,11 @@ public class FileChooserListCellRenderer extends Label implements ListCellRender
         if (isSelected) {
             setFocus(true);
             getStyle().setFont(Fonts.getBoldFont(), true);
-            if(!fastUI) getStyle().setBgTransparency(128);
+            if(!KeePassMobile.instance().isFastUI()) getStyle().setBgTransparency(128);
         } else {
             setFocus(false);
             getStyle().setFont(Fonts.getNormalFont(), true);
-            if(!fastUI) getStyle().setBgTransparency(0);
+            if(!KeePassMobile.instance().isFastUI()) getStyle().setBgTransparency(0);
         }
         return this;
     }
@@ -62,7 +58,7 @@ public class FileChooserListCellRenderer extends Label implements ListCellRender
         setIcon(null);
         setFocus(true);
         getStyle().setFont(Fonts.getNormalFont(), true);
-        if(!fastUI) getStyle().setBgTransparency(128);
+        if(!KeePassMobile.instance().isFastUI()) getStyle().setBgTransparency(128);
         return this;
     }
 }

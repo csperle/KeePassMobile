@@ -36,11 +36,11 @@ import com.sun.lwuit.util.Log;
  */
 public class KeePassMobileMIDlet extends MIDlet implements Platform {
 
-    private Application app;
+    boolean initialized = false;
     
     protected void startApp() throws MIDletStateChangeException {
-        if(app == null) {
-            app = new KeePassMobile(this);
+        if(!initialized) {
+            KeePassMobile.init(this);
             
             printPlatformInfo();
             
@@ -63,21 +63,22 @@ public class KeePassMobileMIDlet extends MIDlet implements Platform {
                 showFatalErrorAndQuit();
             }
             
-            app.startUp();
+            KeePassMobile.instance().startUp();
+            initialized = true;
         } else {
-            app.resume();
+            KeePassMobile.instance().resume();
         }
     }
     
     protected void pauseApp() {
-        app.pause();
+        KeePassMobile.instance().pause();
     }
 
     /**
      * Called from the mobile phone.
      */
     protected void destroyApp(boolean unconditional) {
-        app.shutdown();
+        KeePassMobile.instance().shutdown();
         this.exit();
     }
     

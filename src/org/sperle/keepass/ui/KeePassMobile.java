@@ -71,6 +71,7 @@ public class KeePassMobile implements Application {
     public static final String KPM_DEFAULT_LANGUAGE = "KPM-DefaultLanguage";
     public static final String KPM_PASSWORD_FIELD_WORKAROUND = "KPM-PasswordFieldWorkaround";
     
+    private static KeePassMobile instance;
     private Platform platform;
     private KeePassMobileIO keePassMobileIO;
     private CommandManager commandManager;
@@ -82,10 +83,27 @@ public class KeePassMobile implements Application {
     private KdbEntry clipboardEntry;
     private boolean passwordFieldWorkaroundEnabled = false;
     
-    public KeePassMobile(Platform platform) {
+    private KeePassMobile(Platform platform) {
         this.platform = platform;
     }
     
+    /**
+     * Call this once, during platform startup to initialize the application.
+     */
+    public static void init(Platform platform) {
+        instance = new KeePassMobile(platform);
+    }
+    
+    /**
+     * Returns the configured application.
+     */
+    public static KeePassMobile instance() {
+        return instance;
+    }
+    
+    /**
+     * Starts up the KeePassMobile application.
+     */
     public void startUp() {
         Log.p("KeePassMobile starts up...", Log.DEBUG);
         
@@ -237,7 +255,7 @@ public class KeePassMobile implements Application {
         Log.p("Used memory after KeePassMobile initialization: " + usedMem + "kb/" + totalMem + "kb (" + usedPerc + "%)", Log.DEBUG);
         
         // show main menu
-        mainMenu = new MainMenuForm(this, Vectors.toMenuItemArray(getMainMenuItems()));
+        mainMenu = new MainMenuForm(Vectors.toMenuItemArray(getMainMenuItems()));
         showMainMenu();
         
         // show beta version warning
@@ -285,12 +303,12 @@ public class KeePassMobile implements Application {
     private Vector getMainMenuItems() {
         Vector menuItems = new Vector();
         if(settings.exists(Settings.LAST_FILE)) {
-            menuItems.addElement(new LastFileSource(this, settings.get(Settings.LAST_FILE)));
+            menuItems.addElement(new LastFileSource(settings.get(Settings.LAST_FILE)));
         }
-        menuItems.addElement(new CreateDatabaseSource(this));
-        menuItems.addElement(new FileSource(this));
+        menuItems.addElement(new CreateDatabaseSource());
+        menuItems.addElement(new FileSource());
         if(System.getProperty("development") != null) {
-            menuItems.addElement(new MidletSource(this));
+            menuItems.addElement(new MidletSource());
         }
         return menuItems;
     }
@@ -313,7 +331,7 @@ public class KeePassMobile implements Application {
             }
         }
         if(timeout > 0) {
-            securityTimer = new SecurityTimer(this, kdb, timeout);
+            securityTimer = new SecurityTimer(kdb, timeout);
             new Thread(securityTimer).start();
             Log.p("Security timer set up. Set timeout to: " + (timeout/60000) + "min", Log.DEBUG);
         }

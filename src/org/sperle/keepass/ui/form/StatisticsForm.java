@@ -22,13 +22,10 @@ package org.sperle.keepass.ui.form;
 
 import org.sperle.keepass.kdb.KeePassDatabase;
 import org.sperle.keepass.kdb.PerformanceStatistics;
-import org.sperle.keepass.ui.KeePassMobile;
 import org.sperle.keepass.ui.i18n.Messages;
 
-import com.sun.lwuit.Command;
 import com.sun.lwuit.Dialog;
 import com.sun.lwuit.TextArea;
-import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.layouts.BorderLayout;
 import com.sun.lwuit.util.Log;
 
@@ -36,21 +33,19 @@ public class StatisticsForm extends KeePassMobileForm {
     private KeePassDatabase kdb;
     
     private static StatisticsForm instance;
-    public static StatisticsForm create(final KeePassMobile app, final KeePassDatabase kdb) {
+    public static StatisticsForm create(final KeePassDatabase kdb) {
         if(instance == null || instance.kdb != kdb) { // return same statistics form for same database
-            instance = new StatisticsForm(app, kdb);
+            instance = new StatisticsForm(kdb);
         }
         return instance;
     }
     
-    private StatisticsForm(final KeePassMobile app, final KeePassDatabase kdb) {
-        super(app, Messages.get("stats") + " " + kdb.getDatabaseName());
+    private StatisticsForm(final KeePassDatabase kdb) {
+        super(Messages.get("stats") + " " + kdb.getDatabaseName());
         this.kdb = kdb;
         
         setLayout(new BorderLayout());
         setScrollable(false);
-        
-        app.getCommandManager().addCommands(this, createCommands(), backCommand);
         
         TextArea stats = new TextArea("", 5, 20);
         stats.setEditable(false);
@@ -106,16 +101,6 @@ public class StatisticsForm extends KeePassMobileForm {
         
         stats.setText(buf.toString());
         addComponent(BorderLayout.CENTER, stats);
-    }
-    
-    private Command[] createCommands() {
-        Command[] commands = new Command[2];
-        commands[0] = backCommand;
-        commands[1] = new Command(Messages.get("help")) {
-            public void actionPerformed(ActionEvent evt) {
-                Forms.showHelp(Messages.get("stats_help"));
-            }
-        };
-        return commands;
+        updateCommands();
     }
 }

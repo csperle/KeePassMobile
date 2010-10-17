@@ -29,12 +29,13 @@ import javax.microedition.io.file.FileConnection;
 import javax.microedition.io.file.FileSystemRegistry;
 
 import org.sperle.keepass.ui.KeePassMobile;
+import org.sperle.keepass.ui.command.AbstractFormCommands;
+import org.sperle.keepass.ui.command.KeePassMobileCommand;
 import org.sperle.keepass.ui.form.Forms;
 import org.sperle.keepass.ui.form.KeePassMobileForm;
 import org.sperle.keepass.ui.i18n.Messages;
 import org.sperle.keepass.ui.util.QuickSorter;
 
-import com.sun.lwuit.Command;
 import com.sun.lwuit.Display;
 import com.sun.lwuit.List;
 import com.sun.lwuit.events.ActionEvent;
@@ -60,22 +61,19 @@ public class FileChooserForm extends KeePassMobileForm {
     private String fileEndingFilter;
     private boolean directoriesOnly = false;
     private FileChooserCallback callback;
-    private Command defaultCommand;
     
-    public FileChooserForm(final KeePassMobile app, FileChooserCallback callback, boolean fastUI) {
-        super(app, Messages.get("select_db"));
+    public FileChooserForm(FileChooserCallback callback) {
+        super(Messages.get("select_db"));
         this.callback = callback;
         
         setLayout(new BorderLayout());
         setScrollable(false);
         
-        app.getCommandManager().addCommands(this, createCommands(), defaultCommand);
-        
         dirList = new List();
-        dirList.setListCellRenderer(new FileChooserListCellRenderer(fastUI));
+        dirList.setListCellRenderer(new FileChooserListCellRenderer());
         dirList.setOrientation(List.VERTICAL);
         dirList.setFixedSelection(List.FIXED_NONE_CYCLIC);
-        if(!app.isFastUI()) dirList.setSmoothScrolling(true);
+        if(!KeePassMobile.instance().isFastUI()) dirList.setSmoothScrolling(true);
         else dirList.setSmoothScrolling(false);
         dirList.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -145,34 +143,7 @@ public class FileChooserForm extends KeePassMobileForm {
         });
         
         addComponent(BorderLayout.CENTER, dirList);
-    }
-    
-    private Command[] createCommands() {
-        Command[] commands = new Command[3];
-        commands[0] = new Command(Messages.get("cancel")) {
-            public void actionPerformed(ActionEvent evt) {
-                goBack();
-            }
-        };
-        commands[1] = new Command(Messages.get("show_all_files")) {
-            public void actionPerformed(ActionEvent evt) {
-                setFileEndingFilter(null);
-                try {
-                    dirList.setModel(getDirModel());
-                } catch (Exception e) {
-                    Log.p("Error loading directory entries for [" + (currentDir == null ? "ROOT" : currentDir) + "] - " + e.toString(), Log.ERROR);
-                    FileChooserForm.this.callback.errorOccured(e);
-                    return;
-                }
-            }
-        };
-        commands[2] = new Command(Messages.get("help")) {
-            public void actionPerformed(ActionEvent evt) {
-                Forms.showHelp(Messages.get("filechooser_help"));
-            }
-        };
-        defaultCommand = commands[0]; // cancel
-        return commands;
+        updateCommands();
     }
     
     protected void goBack() {
@@ -322,6 +293,36 @@ public class FileChooserForm extends KeePassMobileForm {
         // up directory comes first
         public int compareTo(Object obj) {
             return -1;
+        }
+    }
+    
+    public static class FormCommands extends AbstractFormCommands {
+
+        public FormCommands(final FileChooserForm form) {
+            commands = new KeePassMobileCommand[3];
+            commands[0] = new KeePassMobileCommand(Messages.get("cancel")) {
+                public void actionPerformed(ActionEvent evt) {
+                    form.goBack();
+                }
+            };
+            commands[1] = new KeePassMobileCommand(Messages.get("show_all_files")) {
+                public void actionPerformed(ActionEvent evt) {
+                    form.setFileEndingFilter(null);
+                    try {
+                        form.dirList.setModel(form.getDirModel());
+                    } catch (Exception e) {
+                        Log.p("Error loading directory entries for [" + (form.currentDir == null ? "ROOT" : form.currentDir) + "] - " + e.toString(), Log.ERROR);
+                        form.callback.errorOccured(e);
+                        return;
+                    }
+                }
+            };
+            commands[2] = new KeePassMobileCommand(Messages.get("help")) {
+                public void actionPerformed(ActionEvent evt) {
+                    Forms.showHelp(Messages.get("filechooser_help"));
+                }
+            };
+            defaultCommand = 0; // cancel
         }
     }
     

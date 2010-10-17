@@ -21,16 +21,12 @@
 package org.sperle.keepass.ui.search;
 
 import org.sperle.keepass.kdb.SearchOptions;
-import org.sperle.keepass.ui.KeePassMobile;
-import org.sperle.keepass.ui.form.Forms;
 import org.sperle.keepass.ui.form.KeePassMobileForm;
 import org.sperle.keepass.ui.i18n.Messages;
 
 import com.sun.lwuit.CheckBox;
-import com.sun.lwuit.Command;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.TextArea;
-import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.layouts.BoxLayout;
 
 public class SearchOptionsForm extends KeePassMobileForm {
@@ -47,14 +43,12 @@ public class SearchOptionsForm extends KeePassMobileForm {
     private CheckBox notesCB;
     private CheckBox attachmentCB;
     
-    public SearchOptionsForm(final KeePassMobile app, final SearchForm searchForm, SearchOptions defaultOptions) {
-        super(app, Messages.get("searchoptions"));
+    public SearchOptionsForm(final SearchForm searchForm, SearchOptions defaultOptions) {
+        super(Messages.get("searchoptions"));
         this.searchForm = searchForm;
         
         setLayout(new BoxLayout(BoxLayout.Y_AXIS));
         setScrollableY(true);
-        
-        app.getCommandManager().addCommands(this, createCommands(), backCommand);
         
         maxResultsLabel = new Label(Messages.get("searchoptions_maxresults"));
         addComponent(maxResultsLabel);
@@ -82,17 +76,7 @@ public class SearchOptionsForm extends KeePassMobileForm {
         attachmentCB = new CheckBox(Messages.get("searchoptions_attachment"));
         attachmentCB.setSelected(defaultOptions.searchBinaryDescription);
         addComponent(attachmentCB);
-    }
-    
-    private Command[] createCommands() {
-        Command[] commands = new Command[2];
-        commands[0] = backCommand;
-        commands[1] = new Command(Messages.get("help")) {
-            public void actionPerformed(ActionEvent evt) {
-                Forms.showHelp(Messages.get("searchoptions_help"));
-            }
-        };
-        return commands;
+        updateCommands();
     }
     
     protected void goBack() {

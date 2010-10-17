@@ -22,19 +22,13 @@ package org.sperle.keepass.ui.edit;
 
 import org.sperle.keepass.kdb.KdbDate;
 import org.sperle.keepass.kdb.KdbEntry;
-import org.sperle.keepass.kdb.KeePassDatabase;
-import org.sperle.keepass.ui.KeePassMobile;
 import org.sperle.keepass.ui.component.DateField;
-import org.sperle.keepass.ui.form.Forms;
 import org.sperle.keepass.ui.form.IconTitleForm;
 import org.sperle.keepass.ui.form.ItemListForm;
 import org.sperle.keepass.ui.i18n.Messages;
 import org.sperle.keepass.ui.icon.Icons;
-import org.sperle.keepass.ui.passgen.PassgenForm;
-import org.sperle.keepass.ui.source.file.FileChooserForm;
 import org.sperle.keepass.ui.util.DateFormatter.ParseException;
 
-import com.sun.lwuit.Command;
 import com.sun.lwuit.Container;
 import com.sun.lwuit.Dialog;
 import com.sun.lwuit.Display;
@@ -50,7 +44,6 @@ import com.sun.lwuit.util.Log;
 public class EntryForm extends IconTitleForm {
 
     private final KdbEntry entry;
-    private final boolean fastUI;
     
     private TabbedPane tabbedPane;
     private Container detailsPanel;
@@ -68,22 +61,14 @@ public class EntryForm extends IconTitleForm {
     private DateField expiryField;
     private TextArea notesField;
     
-    private Command saveAttachmentCommand;
-    private Command delAttachmentCommand;
-    private Command addAttachmentCommand;
-    private Command defaultCommand;
-    
-    public EntryForm(final KeePassMobile app, final KeePassDatabase kdb, final KdbEntry entry, final boolean editTitle, boolean fastUI) {
-        super(app, entry.expired() ? Icons.getExpiredIcon() : Icons.getKeePassIcon(entry.getIconId()), entry.getTitle() != null ? entry.getTitle() : Messages.get("create_entry"));
+    public EntryForm(final KdbEntry entry, final boolean editTitle) {
+        super(entry.expired() ? Icons.getExpiredIcon() : Icons.getKeePassIcon(entry.getIconId()), entry.getTitle() != null ? entry.getTitle() : Messages.get("create_entry"));
         this.entry = entry;
-        this.fastUI = fastUI;
         
         entry.access();
         
         setLayout(new BorderLayout());
         setScrollable(false);
-        
-        app.getCommandManager().addCommands(this, createCommands(), defaultCommand);
         
         if(entry.expired()) {
             this.getTitleComponent().getStyle().setFgColor(0xD60000); // red
@@ -192,58 +177,7 @@ public class EntryForm extends IconTitleForm {
         tabbedPane.addTab(Messages.get("notes"), notesPanel);
         
         addComponent(BorderLayout.CENTER, tabbedPane);
-    }
-    
-    private Command[] createCommands() {
-        int i = 0;
-        Command[] commands = new Command[entry.hasAttachment() ? 6 : 5];
-        commands[i++] = backCommand;
-        if(addAttachmentCommand == null) {
-            addAttachmentCommand = new Command(Messages.get("add_attachment")) {
-                public void actionPerformed(ActionEvent evt) {
-                    addAttachment();
-                }
-            };
-        }
-        if(!entry.hasAttachment()) commands[i++] = addAttachmentCommand;
-        if(saveAttachmentCommand == null) {
-            saveAttachmentCommand = new Command(Messages.get("save_attachment")) {
-                public void actionPerformed(ActionEvent evt) {
-                    saveAttachment();
-                }
-            };
-        }
-        if(entry.hasAttachment()) commands[i++] = saveAttachmentCommand;
-        if(delAttachmentCommand == null) {
-            delAttachmentCommand = new Command(Messages.get("del_attachment")) {
-                public void actionPerformed(ActionEvent evt) {
-                    String desc = entry.getBinaryDescription();
-                    entry.removeAttachment();
-                    removeAttachmentComponents();
-                    Dialog.show(Messages.get("attachment_removed"), Messages.get("attachment_removed_sucessfully") 
-                            + " " + desc, Messages.get("ok"), null);
-                }
-            };
-        }
-        if(entry.hasAttachment()) commands[i++] = delAttachmentCommand;
-        commands[i++] = new Command(Messages.get("change_icon")) {
-            public void actionPerformed(ActionEvent evt) {
-                new IconForm(entry).show();
-                setTitleIcon(Icons.getKeePassIcon(entry.getIconId()));
-            }
-        };
-        commands[i++] = new Command(Messages.get("passgen")) {
-            public void actionPerformed(ActionEvent evt) {
-                PassgenForm.create(app, EntryForm.this).show();
-            }
-        };
-        commands[i++] = new Command(Messages.get("help")) {
-            public void actionPerformed(ActionEvent evt) {
-                Forms.showHelp(Messages.get("entry_help"));
-            }
-        };
-        defaultCommand = backCommand;
-        return commands;
+        updateCommands();
     }
     
     protected void goBack() {
@@ -253,7 +187,7 @@ public class EntryForm extends IconTitleForm {
         itemList.show();
     }
     
-    private void addAttachmentComponents() {
+    protected void addAttachmentComponents() {
         if(attachLabel == null) {
             attachLabel = new Label(Messages.get("attachment"));
             detailsPanel.addComponent(attachLabel);
@@ -263,10 +197,10 @@ public class EntryForm extends IconTitleForm {
             attachField.setEditable(false);
             detailsPanel.addComponent(attachField);
         }
-        app.getCommandManager().addCommands(EntryForm.this, createCommands(), defaultCommand);
+        updateCommands();
     }
     
-    private void removeAttachmentComponents() {
+    protected void removeAttachmentComponents() {
         if(attachLabel != null) {
             detailsPanel.removeComponent(attachLabel);
             attachLabel = null;
@@ -275,63 +209,7 @@ public class EntryForm extends IconTitleForm {
             detailsPanel.removeComponent(attachField);
             attachField = null;
         }
-        app.getCommandManager().addCommands(EntryForm.this, createCommands(), defaultCommand);
-    }
-    
-    private void saveAttachment() {
-        FileChooserForm fileChooser = new FileChooserForm(app, new FileChooserForm.FileChooserCallback() {
-            public void choosen(String foldername) {
-                try {
-                    app.getKeePassMobileIO().saveAttachment(entry, foldername);
-                    Log.p("Attachment saved successfully", Log.DEBUG);
-                    Dialog.show(Messages.get("attachment_saved"), Messages.get("attachment_saved_sucessfully") 
-                            + " " + foldername + entry.getBinaryDescription(), Messages.get("ok"), null);
-                } catch (Exception e) {
-                    Log.p("Error saving attachment - " + e.toString(), Log.ERROR);
-                    Dialog.show(Messages.get("saving_error"), Messages.get("saving_error_text") + e.getMessage(), Messages.get("ok"), null);
-                } finally {
-                    EntryForm.this.show();
-                }
-            }
-            public void canceled() {
-                EntryForm.this.show();
-            }
-            public void errorOccured(Exception e) {
-                Log.p("Error choosing folder to save attachment - " + e.toString(), Log.ERROR);
-                Dialog.show(Messages.get("choosing_error"), Messages.get("choosing_error_text") + e.getMessage(), Messages.get("ok"), null);
-                EntryForm.this.show();
-            }
-        }, fastUI);
-        fileChooser.setDirectoriesOnly(true);
-        fileChooser.show();
-    }
-    
-    private void addAttachment() {
-        FileChooserForm fileChooser = new FileChooserForm(app, new FileChooserForm.FileChooserCallback() {
-            public void choosen(String filename) {
-                try {
-                    app.getKeePassMobileIO().addAttachment(entry, filename);
-                    Log.p("Attachment added successfully", Log.DEBUG);
-                    addAttachmentComponents();
-                    Dialog.show(Messages.get("attachment_added"), Messages.get("attachment_added_sucessfully") 
-                            + " " + filename, Messages.get("ok"), null);
-                } catch (Exception e) {
-                    Log.p("Error addind attachment - " + e.toString(), Log.ERROR);
-                    Dialog.show(Messages.get("loading_error"), Messages.get("loading_error_text") + e.getMessage(), Messages.get("ok"), null);
-                } finally {
-                    EntryForm.this.show();
-                }
-            }
-            public void canceled() {
-                EntryForm.this.show();
-            }
-            public void errorOccured(Exception e) {
-                Log.p("Error choosing attachment - " + e.toString(), Log.ERROR);
-                Dialog.show(Messages.get("choosing_error"), Messages.get("choosing_error_text") + e.getMessage(), Messages.get("ok"), null);
-                EntryForm.this.show();
-            }
-        }, fastUI);
-        fileChooser.show();
+        updateCommands();
     }
     
     public KdbEntry getEntry() {

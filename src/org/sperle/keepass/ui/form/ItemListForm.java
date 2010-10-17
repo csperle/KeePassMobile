@@ -21,19 +21,18 @@
 package org.sperle.keepass.ui.form;
 
 import org.sperle.keepass.kdb.KdbItem;
-import org.sperle.keepass.ui.KeePassMobile;
 
 /**
  * A Form that shows KeePass database items.
  */
 public abstract class ItemListForm extends KeePassMobileForm {
     
-    public ItemListForm(final KeePassMobile app) {
-        super(app);
+    public ItemListForm() {
+        super();
     }
     
-    public ItemListForm(final KeePassMobile app, String title) {
-        super(app, title);
+    public ItemListForm(String title) {
+        super(title);
     }
     
     /**

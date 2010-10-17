@@ -22,11 +22,12 @@ package org.sperle.keepass.ui.source.create;
 
 
 import org.sperle.keepass.ui.KeePassMobile;
+import org.sperle.keepass.ui.command.AbstractFormCommands;
+import org.sperle.keepass.ui.command.KeePassMobileCommand;
 import org.sperle.keepass.ui.form.Forms;
 import org.sperle.keepass.ui.form.KeePassMobileForm;
 import org.sperle.keepass.ui.i18n.Messages;
 
-import com.sun.lwuit.Command;
 import com.sun.lwuit.Dialog;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.TextArea;
@@ -42,16 +43,13 @@ public class CreateDatabaseForm extends KeePassMobileForm {
     private TextArea passwdField;
     private Label passwdLabel2;
     private TextArea passwdField2;
-    private Command defaultCommand;
     
-    public CreateDatabaseForm(KeePassMobile app, final CreateDatabaseSource createSource) {
-        super(app, Messages.get("new_db"));
+    public CreateDatabaseForm(final CreateDatabaseSource createSource) {
+        super(Messages.get("new_db"));
         this.createSource = createSource;
         
         setLayout(new BoxLayout(BoxLayout.Y_AXIS));
         setScrollableY(true);
-        
-        app.getCommandManager().addCommands(this, createCommands(), defaultCommand);
         
         nameLabel = new Label(Messages.get("enter_dbname"));
         addComponent(nameLabel);
@@ -60,71 +58,73 @@ public class CreateDatabaseForm extends KeePassMobileForm {
         passwdLabel = new Label(Messages.get("enter_password"));
         addComponent(passwdLabel);
         passwdField = new TextArea();
-        if(!app.isPasswordFieldWorkaroundEnabled()) {
+        if(!KeePassMobile.instance().isPasswordFieldWorkaroundEnabled()) {
             passwdField.setConstraint(TextArea.ANY | TextArea.PASSWORD);
         }
         addComponent(passwdField);
         passwdLabel2 = new Label(Messages.get("enter_password2"));
         addComponent(passwdLabel2);
         passwdField2 = new TextArea();
-        if(!app.isPasswordFieldWorkaroundEnabled()) {
+        if(!KeePassMobile.instance().isPasswordFieldWorkaroundEnabled()) {
             passwdField2.setConstraint(TextArea.ANY | TextArea.PASSWORD);
         }
         addComponent(passwdField2);
-    }
-    
-    private Command[] createCommands() {
-        Command[] commands = new Command[4];
-        commands[0] = new Command(Messages.get("create")) {
-            public void actionPerformed(ActionEvent evt) {
-                if("".equals(nameField.getText())) {
-                    Dialog.show(Messages.get("dbname_empty"), Messages.get("dbname_empty_text"), Messages.get("ok"), null);
-                    return;
-                }
-                if("".equals(passwdField.getText())) {
-                    Dialog.show(Messages.get("password_empty"), Messages.get("password_empty_text"), Messages.get("ok"), null);
-                    return;
-                }
-                if(!passwdField.getText().equals(passwdField2.getText())) {
-                    Dialog.show(Messages.get("password_mismatch"), Messages.get("password_mismatch_text"), Messages.get("ok"), null);
-                    passwdField.setText("");
-                    passwdField2.setText("");
-                    return;
-                }
-                createSource.create(nameField.getText(), passwdField.getText(), null);
-            }
-        };
-        commands[1] = new Command(Messages.get("use_keyfile")) {
-            public void actionPerformed(ActionEvent evt) {
-                if("".equals(nameField.getText())) {
-                    Dialog.show(Messages.get("dbname_empty"), Messages.get("dbname_empty_text"), Messages.get("ok"), null);
-                    return;
-                }
-                if(!passwdField.getText().equals(passwdField2.getText())) {
-                    Dialog.show(Messages.get("password_mismatch"), Messages.get("password_mismatch_text"), Messages.get("ok"), null);
-                    passwdField.setText("");
-                    passwdField2.setText("");
-                    return;
-                }
-                createSource.openKeyFile(nameField.getText(), ("".equals(passwdField.getText()) ? null : passwdField.getText()));
-            }
-        };
-        commands[2] = new Command(Messages.get("help")) {
-            public void actionPerformed(ActionEvent evt) {
-                Forms.showHelp(Messages.get("createdb_help"));
-            }
-        };
-        commands[3] = new Command(Messages.get("cancel")) {
-            public void actionPerformed(ActionEvent evt) {
-                goBack();
-            }
-        };
-        
-        defaultCommand = commands[0]; // create
-        return commands;
+        updateCommands();
     }
     
     protected void goBack() {
         createSource.creationCanceled();
+    }
+    
+    public static class FormCommands extends AbstractFormCommands {
+
+        public FormCommands(final CreateDatabaseForm form) {
+            commands = new KeePassMobileCommand[4];
+            commands[0] = new KeePassMobileCommand(Messages.get("create")) {
+                public void actionPerformed(ActionEvent evt) {
+                    if("".equals(form.nameField.getText())) {
+                        Dialog.show(Messages.get("dbname_empty"), Messages.get("dbname_empty_text"), Messages.get("ok"), null);
+                        return;
+                    }
+                    if("".equals(form.passwdField.getText())) {
+                        Dialog.show(Messages.get("password_empty"), Messages.get("password_empty_text"), Messages.get("ok"), null);
+                        return;
+                    }
+                    if(!form.passwdField.getText().equals(form.passwdField2.getText())) {
+                        Dialog.show(Messages.get("password_mismatch"), Messages.get("password_mismatch_text"), Messages.get("ok"), null);
+                        form.passwdField.setText("");
+                        form.passwdField2.setText("");
+                        return;
+                    }
+                    form.createSource.create(form.nameField.getText(), form.passwdField.getText(), null);
+                }
+            };
+            commands[1] = new KeePassMobileCommand(Messages.get("use_keyfile")) {
+                public void actionPerformed(ActionEvent evt) {
+                    if("".equals(form.nameField.getText())) {
+                        Dialog.show(Messages.get("dbname_empty"), Messages.get("dbname_empty_text"), Messages.get("ok"), null);
+                        return;
+                    }
+                    if(!form.passwdField.getText().equals(form.passwdField2.getText())) {
+                        Dialog.show(Messages.get("password_mismatch"), Messages.get("password_mismatch_text"), Messages.get("ok"), null);
+                        form.passwdField.setText("");
+                        form.passwdField2.setText("");
+                        return;
+                    }
+                    form.createSource.openKeyFile(form.nameField.getText(), ("".equals(form.passwdField.getText()) ? null : form.passwdField.getText()));
+                }
+            };
+            commands[2] = new KeePassMobileCommand(Messages.get("help")) {
+                public void actionPerformed(ActionEvent evt) {
+                    Forms.showHelp(Messages.get("createdb_help"));
+                }
+            };
+            commands[3] = new KeePassMobileCommand(Messages.get("cancel")) {
+                public void actionPerformed(ActionEvent evt) {
+                    form.goBack();
+                }
+            };
+            defaultCommand = 0; // create
+        }
     }
 }

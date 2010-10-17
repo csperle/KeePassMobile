@@ -21,14 +21,13 @@
 package org.sperle.keepass.ui.edit;
 
 import org.sperle.keepass.kdb.KdbGroup;
-import org.sperle.keepass.kdb.KeePassDatabase;
-import org.sperle.keepass.ui.KeePassMobile;
+import org.sperle.keepass.ui.command.AbstractFormCommands;
+import org.sperle.keepass.ui.command.KeePassMobileCommand;
 import org.sperle.keepass.ui.form.IconTitleForm;
 import org.sperle.keepass.ui.form.ItemListForm;
 import org.sperle.keepass.ui.i18n.Messages;
 import org.sperle.keepass.ui.icon.Icons;
 
-import com.sun.lwuit.Command;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.TextArea;
 import com.sun.lwuit.events.ActionEvent;
@@ -40,18 +39,15 @@ public class GroupForm extends IconTitleForm  {
     
     private Label nameLabel;
     private TextArea nameField;
-    private Command defaultCommand;
     
-    public GroupForm(final KeePassMobile app, final KeePassDatabase kdb, final KdbGroup group, final boolean create) {
-        super(app, Icons.getKeePassIcon(group.getIconId()), create ? Messages.get("create_group") : group.getName());
+    public GroupForm(final KdbGroup group, final boolean create) {
+        super(Icons.getKeePassIcon(group.getIconId()), create ? Messages.get("create_group") : group.getName());
         this.group = group;
         
         group.access();
         
         setLayout(new BoxLayout(BoxLayout.Y_AXIS));
         setScrollableY(true);
-        
-        app.getCommandManager().addCommands(this, createCommands(), defaultCommand);
         
         nameLabel = new Label(Messages.get("group_name"));
         addComponent(nameLabel);
@@ -62,19 +58,7 @@ public class GroupForm extends IconTitleForm  {
             }
         });
         addComponent(nameField);
-    }
-    
-    private Command[] createCommands() {
-        Command[] commands = new Command[2];
-        commands[0] = backCommand;
-        commands[1] = new Command(Messages.get("change_icon")) {
-            public void actionPerformed(ActionEvent evt) {
-                new IconForm(group).show();
-                setTitleIcon(Icons.getKeePassIcon(group.getIconId()));
-            }
-        };
-        defaultCommand = commands[0]; // back
-        return commands;
+        updateCommands();
     }
     
     protected void goBack() {
@@ -82,5 +66,24 @@ public class GroupForm extends IconTitleForm  {
         itemList.refresh();
         itemList.setSelected(group);
         itemList.show();
+    }
+    
+    public KdbGroup getGroup() {
+        return group;
+    }
+    
+    public static class FormCommands extends AbstractFormCommands {
+
+        public FormCommands(final GroupForm form) {
+            commands = new KeePassMobileCommand[2];
+            commands[0] = (KeePassMobileCommand) form.getBackCommand();
+            commands[1] = new KeePassMobileCommand(Messages.get("change_icon")) {
+                public void actionPerformed(ActionEvent evt) {
+                    new IconForm(form.getGroup()).show();
+                    form.setTitleIcon(Icons.getKeePassIcon(form.getGroup().getIconId()));
+                }
+            };
+            defaultCommand = 0; // back
+        }
     }
 }

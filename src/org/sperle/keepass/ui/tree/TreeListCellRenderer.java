@@ -33,14 +33,10 @@ import com.sun.lwuit.List;
 import com.sun.lwuit.list.ListCellRenderer;
 
 public class TreeListCellRenderer extends Label implements ListCellRenderer {
-    private KeePassMobile app;
     private KeePassDatabase kdb;
-    private boolean fastUI;
     
-    public TreeListCellRenderer(KeePassMobile app, KeePassDatabase kdb, boolean fastUI) {
-        this.app = app;
+    public TreeListCellRenderer(final KeePassDatabase kdb) {
         this.kdb = kdb;
-        this.fastUI = fastUI;
     }
     
     public Component getListCellRendererComponent(List list, Object value, int index, boolean isSelected) {
@@ -82,7 +78,7 @@ public class TreeListCellRenderer extends Label implements ListCellRenderer {
             boolean expired = entry.expired();
             setIcon(expired ? Icons.getExpiredIcon() : Icons.getKeePassIcon(entry.getIconId()));
             
-            if(entry == app.getClipboardEntry()) {
+            if(entry == KeePassMobile.instance().getClipboardEntry()) {
                 getUnselectedStyle().setFgColor(0xCCCCCC, true); //grey
                 getSelectedStyle().setFgColor(0xCCCCCC, true); //grey
             } else if(expired) {
@@ -97,11 +93,11 @@ public class TreeListCellRenderer extends Label implements ListCellRenderer {
         if (isSelected) {
             setFocus(true);
             getStyle().setFont(Fonts.getBoldFont(), true);
-            if(!fastUI) getStyle().setBgTransparency(128, true);
+            if(!KeePassMobile.instance().isFastUI()) getStyle().setBgTransparency(128, true);
         } else {
             setFocus(false);
             getStyle().setFont(Fonts.getNormalFont(), true);
-            if(!fastUI) getStyle().setBgTransparency(0, true);
+            if(!KeePassMobile.instance().isFastUI()) getStyle().setBgTransparency(0, true);
         }
         return this;
     }
@@ -111,7 +107,7 @@ public class TreeListCellRenderer extends Label implements ListCellRenderer {
         setIcon(null);
         setFocus(true);
         getStyle().setFont(Fonts.getNormalFont(), true);
-        if(!fastUI) getStyle().setBgTransparency(128);
+        if(!KeePassMobile.instance().isFastUI()) getStyle().setBgTransparency(128);
         return this;
     }
 }

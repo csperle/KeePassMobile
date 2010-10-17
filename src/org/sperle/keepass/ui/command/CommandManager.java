@@ -16,28 +16,34 @@
     You should have received a copy of the GNU General Public License
     along with KeePassMobile.  If not, see <http://www.gnu.org/licenses/>.
 
-*/
+ */
 
 package org.sperle.keepass.ui.command;
 
-import com.sun.lwuit.Command;
 import com.sun.lwuit.Form;
 
 /**
- * A command manager is responsible to add the commands of a form in the order
- * that fits best to the underlying platform. A command manager therefore
- * implements only a specific algorithm and has no state!
+ * A command manager is responsible to get/add the commands of a form in the
+ * order that fits best to the underlying platform.
  */
 public interface CommandManager {
 
     /**
-     * Is called on application startup.
+     * Is called on KeePassMobile application startup.
      */
     void init();
 
     /**
-     * Implements the algorithm to order (and add) the commands of a form and sets the
-     * default command (that is shown on the second soft button).
+     * Returns a FormCommands instance that is configured on this platform for
+     * the given Form.
      */
-    void addCommands(Form form, Command[] commands, Command defaultCommand);
+    FormCommands getCommands(Form form);
+
+    /**
+     * First removes all commands and then add them to the form again.
+     * Implements the algorithm to add the commands in the order that fits best
+     * to the underlying platform. Last, sets the default command (that for
+     * example is shown on the second soft button (if available)).
+     */
+    void updateCommands(Form form, FormCommands commands);
 }

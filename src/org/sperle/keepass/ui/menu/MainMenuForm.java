@@ -21,38 +21,29 @@
 package org.sperle.keepass.ui.menu;
 
 import org.sperle.keepass.ui.KeePassMobile;
-import org.sperle.keepass.ui.form.AboutForm;
-import org.sperle.keepass.ui.form.Forms;
 import org.sperle.keepass.ui.form.KeePassMobileForm;
-import org.sperle.keepass.ui.form.PreferencesForm;
-import org.sperle.keepass.ui.i18n.Messages;
 import org.sperle.keepass.ui.icon.Icons;
 
-import com.sun.lwuit.Command;
 import com.sun.lwuit.List;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.BorderLayout;
 import com.sun.lwuit.list.DefaultListModel;
-import com.sun.lwuit.util.Log;
 
 public class MainMenuForm extends KeePassMobileForm {
     private List mainMenu;
-    private Command defaultCommand;
-
-    public MainMenuForm(final KeePassMobile app, MenuItem[] menuItems) {
-        super(app, KeePassMobile.NAME + " " + KeePassMobile.VERSION);
+    
+    public MainMenuForm(MenuItem[] menuItems) {
+        super(KeePassMobile.NAME + " " + KeePassMobile.VERSION);
         this.getTitleComponent().setIcon(Icons.getKpmIcon());
         
         setLayout(new BorderLayout());
         setScrollable(false);
         
-        app.getCommandManager().addCommands(this, createCommands(), defaultCommand);
-        
         mainMenu = new List(menuItems);
-        mainMenu.setListCellRenderer(new MainMenuListCellRenderer(app.isFastUI()));
+        mainMenu.setListCellRenderer(new MainMenuListCellRenderer());
         mainMenu.setOrientation(List.VERTICAL);
-        if(!app.isFastUI()) mainMenu.setSmoothScrolling(true);
+        if(!KeePassMobile.instance().isFastUI()) mainMenu.setSmoothScrolling(true);
         else mainMenu.setSmoothScrolling(false);
         mainMenu.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -63,37 +54,7 @@ public class MainMenuForm extends KeePassMobileForm {
             }
         });
         addComponent(BorderLayout.CENTER, mainMenu);
-    }
-
-    private Command[] createCommands() {
-        Command[] commands = new Command[5];
-        commands[0] = new Command(Messages.get("help")) {
-            public void actionPerformed(ActionEvent evt) {
-                Forms.showHelp(Messages.get("mainmenu_help"));
-            }
-        };
-        commands[1] = new Command(Messages.get("preferences")) {
-            public void actionPerformed(ActionEvent evt) {
-                new PreferencesForm(app).show();
-            }
-        };
-        commands[2] = new Command(Messages.get("show_log")) {
-            public void actionPerformed(ActionEvent evt) {
-                Forms.showLog(Log.getLogContent());
-            }
-        };
-        commands[3] = new Command(Messages.get("about")) {
-            public void actionPerformed(ActionEvent evt) {
-                new AboutForm(app).show();
-            }
-        };
-        commands[4] = new Command(Messages.get("exit")) {
-            public void actionPerformed(ActionEvent evt) {
-                app.exit();
-            }
-        };
-        defaultCommand = commands[4]; // exit
-        return commands;
+        updateCommands();
     }
     
     protected void goBack() {

@@ -35,7 +35,6 @@ public class SecurityTimer implements Runnable {
     public static final long DEFAULT_TIMEOUT_MILLIS = 10*60*1000; // 10min
     public static final int[] SUPPORTED_TIMEOUT_MINUTES = {-1, 1, 2, 5, 10, 15, 30, 60};
     
-    private KeePassMobile app;
     private KeePassDatabase kdb;
     private long maxTimeout;
     
@@ -43,8 +42,7 @@ public class SecurityTimer implements Runnable {
     private boolean keyPressedInTheMeanwhile = false;
     private boolean stoppedFromOutside = false;
     
-    public SecurityTimer(KeePassMobile app, KeePassDatabase kdb, long maxTimeout) {
-        this.app = app;
+    public SecurityTimer(KeePassDatabase kdb, long maxTimeout) {
         this.kdb = kdb;
         this.maxTimeout = maxTimeout;
     }
@@ -69,11 +67,11 @@ public class SecurityTimer implements Runnable {
             Log.p("Security timeout: database closed!", Log.DEBUG);
             Display.getInstance().callSerially(new Runnable() {
                 public void run() {
-                    app.showMainMenu();
+                    KeePassMobile.instance().showMainMenu();
                 }
             });
         }
-        app.releaseSecurityTimer();
+        KeePassMobile.instance().releaseSecurityTimer();
     }
 
     public void keyPressed() {

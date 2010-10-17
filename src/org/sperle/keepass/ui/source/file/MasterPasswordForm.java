@@ -22,11 +22,12 @@ package org.sperle.keepass.ui.source.file;
 
 
 import org.sperle.keepass.ui.KeePassMobile;
+import org.sperle.keepass.ui.command.AbstractFormCommands;
+import org.sperle.keepass.ui.command.KeePassMobileCommand;
 import org.sperle.keepass.ui.form.Forms;
 import org.sperle.keepass.ui.form.KeePassMobileForm;
 import org.sperle.keepass.ui.i18n.Messages;
 
-import com.sun.lwuit.Command;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.TextArea;
 import com.sun.lwuit.events.ActionEvent;
@@ -37,54 +38,53 @@ public class MasterPasswordForm extends KeePassMobileForm {
     
     private Label passwdLabel;
     private TextArea passwdField;
-    private Command defaultCommand;
     
-    public MasterPasswordForm(final KeePassMobile app, final FileSource fileSource) {
-        super(app, fileSource.getKdbName());
+    public MasterPasswordForm(final FileSource fileSource) {
+        super(fileSource.getKdbName());
         this.fileSource = fileSource;
         
         setLayout(new BoxLayout(BoxLayout.Y_AXIS));
         setScrollable(false);
         
-        app.getCommandManager().addCommands(this, createCommands(), defaultCommand);
-        
         passwdLabel = new Label(Messages.get("enter_password"));
         addComponent(passwdLabel);
         passwdField = new TextArea();
-        if(!app.isPasswordFieldWorkaroundEnabled()) {
+        if(!KeePassMobile.instance().isPasswordFieldWorkaroundEnabled()) {
             passwdField.setConstraint(TextArea.ANY | TextArea.PASSWORD);
         }
         addComponent(passwdField);
-    }
-    
-    private Command[] createCommands() {
-        Command[] commands = new Command[4];
-        commands[0] = new Command(Messages.get("open")) {
-            public void actionPerformed(ActionEvent evt) {
-                fileSource.decrypt(passwdField.getText(), null);
-            }
-        };
-        commands[1] = new Command(Messages.get("use_keyfile")) {
-            public void actionPerformed(ActionEvent evt) {
-                fileSource.openKeyFile(passwdField.getText());
-            }
-        };
-        commands[2] = new Command(Messages.get("help")) {
-            public void actionPerformed(ActionEvent evt) {
-                Forms.showHelp(Messages.get("masterpassword_help"));
-            }
-        };
-        commands[3] = new Command(Messages.get("cancel")) {
-            public void actionPerformed(ActionEvent evt) {
-                goBack();
-            }
-        };
-        
-        defaultCommand = commands[0]; // open
-        return commands;
+        updateCommands();
     }
     
     protected void goBack() {
         fileSource.passwordEnteringCanceled();
+    }
+    
+    public static class FormCommands extends AbstractFormCommands {
+
+        public FormCommands(final MasterPasswordForm form) {
+            commands = new KeePassMobileCommand[4];
+            commands[0] = new KeePassMobileCommand(Messages.get("open")) {
+                public void actionPerformed(ActionEvent evt) {
+                    form.fileSource.decrypt(form.passwdField.getText(), null);
+                }
+            };
+            commands[1] = new KeePassMobileCommand(Messages.get("use_keyfile")) {
+                public void actionPerformed(ActionEvent evt) {
+                    form.fileSource.openKeyFile(form.passwdField.getText());
+                }
+            };
+            commands[2] = new KeePassMobileCommand(Messages.get("help")) {
+                public void actionPerformed(ActionEvent evt) {
+                    Forms.showHelp(Messages.get("masterpassword_help"));
+                }
+            };
+            commands[3] = new KeePassMobileCommand(Messages.get("cancel")) {
+                public void actionPerformed(ActionEvent evt) {
+                    form.goBack();
+                }
+            };
+            defaultCommand = 0; // open
+        }
     }
 }

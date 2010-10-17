@@ -22,6 +22,7 @@ package org.sperle.keepass.ui.form;
 
 import java.io.IOException;
 
+import org.sperle.keepass.ui.KeePassMobile;
 import org.sperle.keepass.ui.i18n.Messages;
 import org.sperle.keepass.ui.icon.Icons;
 
@@ -105,8 +106,8 @@ public class Forms {
         form.setTransitionOutAnimator(CommonTransitions.createEmpty());
     }
     
-    public static void setTransitionOut(Form form, boolean forward, boolean fastUI) {
-        if(fastUI) {
+    public static void setTransitionOut(Form form, boolean forward) {
+        if(KeePassMobile.instance().isFastUI()) {
             form.setTransitionOutAnimator(CommonTransitions.createEmpty());
         } else {
             form.setTransitionOutAnimator(CommonTransitions.createSlide(CommonTransitions.SLIDE_HORIZONTAL, !forward, 300));

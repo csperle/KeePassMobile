@@ -37,13 +37,13 @@ public class AboutForm extends KeePassMobileForm {
     private Container headlinePanel;
     private TextArea tributeArea;
     
-    public AboutForm(final KeePassMobile app) {
-        super(app, Messages.get("about"));
+    public AboutForm() {
+        super(Messages.get("about"));
         
         setLayout(new BorderLayout());
         setScrollable(false);
         
-        addCommand(backCommand);
+        addCommand(getBackCommand());
         
         addComponent(BorderLayout.NORTH, getHeaderPanel());
         addComponent(BorderLayout.CENTER, getTributeArea());

@@ -20,8 +20,6 @@
 
 package org.sperle.keepass.ui.form;
 
-import java.io.IOException;
-
 import org.sperle.keepass.ui.KeePassMobile;
 import org.sperle.keepass.ui.font.Fonts;
 import org.sperle.keepass.ui.i18n.Messages;
@@ -31,12 +29,8 @@ import org.sperle.keepass.ui.theme.Themes;
 import org.sperle.keepass.ui.util.SecurityTimer;
 
 import com.sun.lwuit.ComboBox;
-import com.sun.lwuit.Command;
-import com.sun.lwuit.Dialog;
 import com.sun.lwuit.Label;
-import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.layouts.BoxLayout;
-import com.sun.lwuit.util.Log;
 
 public class PreferencesForm extends KeePassMobileForm {
     private Label uiLabel;
@@ -55,21 +49,18 @@ public class PreferencesForm extends KeePassMobileForm {
     private ComboBox dfBox;
     private Label timeoutLabel;
     private ComboBox timeoutBox;
-    private Command defaultCommand;
     
-    public PreferencesForm(final KeePassMobile app) {
-        super(app, Messages.get("preferences"));
+    public PreferencesForm() {
+        super(Messages.get("preferences"));
         
         setLayout(new BoxLayout(BoxLayout.Y_AXIS));
         setScrollableY(true);
-        
-        app.getCommandManager().addCommands(this, createCommands(), defaultCommand);
         
         if(Themes.isSupported(Themes.NICE_THEME)) {
             uiLabel = new Label(Messages.get("ui"));
             addComponent(uiLabel);
             uiBox = new ComboBox(new String[]{Messages.get("ui_nice"), Messages.get("ui_fast")});
-            if(app.getSettings().getBoolean(Settings.UI_FAST)) {
+            if(KeePassMobile.instance().getSettings().getBoolean(Settings.UI_FAST)) {
                 uiBox.setSelectedIndex(1);
             } else {
                 uiBox.setSelectedIndex(0);
@@ -92,7 +83,7 @@ public class PreferencesForm extends KeePassMobileForm {
         fontLabel = new Label(Messages.get("font_size"));
         addComponent(fontLabel);
         fontBox = new ComboBox(new String[]{Messages.get("font_small"), Messages.get("font_medium"), Messages.get("font_large")});
-        fontBox.setSelectedIndex(app.getSettings().getInt(Settings.FONT_SIZE, Fonts.SIZE_DEFAULT));
+        fontBox.setSelectedIndex(KeePassMobile.instance().getSettings().getInt(Settings.FONT_SIZE, Fonts.SIZE_DEFAULT));
         addComponent(fontBox);
         
         langLabel = new Label(Messages.get("language"));
@@ -107,7 +98,7 @@ public class PreferencesForm extends KeePassMobileForm {
         backupLabel = new Label(Messages.get("show_backup"));
         addComponent(backupLabel);
         backupBox = new ComboBox(new String[]{Messages.get("yes"), Messages.get("no")});
-        if(app.getSettings().getBoolean(Settings.SHOW_BACKUP)) {
+        if(KeePassMobile.instance().getSettings().getBoolean(Settings.SHOW_BACKUP)) {
             backupBox.setSelectedIndex(0);
         } else {
             backupBox.setSelectedIndex(1);
@@ -117,7 +108,7 @@ public class PreferencesForm extends KeePassMobileForm {
         quickLabel = new Label(Messages.get("quick_view"));
         addComponent(quickLabel);
         quickBox = new ComboBox(new String[]{Messages.get("on"), Messages.get("off")});
-        if(app.getSettings().getBoolean(Settings.QUICK_VIEW)) {
+        if(KeePassMobile.instance().getSettings().getBoolean(Settings.QUICK_VIEW)) {
             quickBox.setSelectedIndex(0);
         } else {
             quickBox.setSelectedIndex(1);
@@ -141,43 +132,7 @@ public class PreferencesForm extends KeePassMobileForm {
             timeoutBox.setSelectedIndex(selectedTimeoutIndex);
         }
         addComponent(timeoutBox);
-    }
-    
-    private Command[] createCommands() {
-        Command[] commands = new Command[5];
-        commands[0] = backCommand;
-        commands[1] = new Command(Messages.get("help")) {
-            public void actionPerformed(ActionEvent evt) {
-                Forms.showHelp(Messages.get("preferences_help"));
-            }
-        };
-        commands[2] = new Command(Messages.get("save")) {
-            public void actionPerformed(ActionEvent ev) {
-                try {
-                    if(app.getSettings().available()) {
-                        if(uiBox != null) {
-                            app.getSettings().setBoolean(Settings.UI_FAST, uiBox.getSelectedIndex() == 1);
-                        }
-//                        midlet.getSettings().setBoolean(Settings.TOUCH_DEVICE, touchBox.getSelectedIndex() == 0);
-                        app.getSettings().setBoolean(Settings.SHOW_BACKUP, backupBox.getSelectedIndex() == 0);
-                        app.getSettings().setBoolean(Settings.QUICK_VIEW, quickBox.getSelectedIndex() == 0);
-                        app.getSettings().set(Settings.LANGUAGE, Messages.SUPPORTED_LANGS[langBox.getSelectedIndex()]);
-                        app.getSettings().set(Settings.DATE_FORMAT, Locales.SUPPORTED_DATE_FORMATS[dfBox.getSelectedIndex()]);
-                        app.getSettings().set(Settings.SECURITY_TIMEOUT, getTimeoutMillis(timeoutBox.getSelectedIndex()));
-                        app.getSettings().setInt(Settings.FONT_SIZE, fontBox.getSelectedIndex());
-                        
-                        Dialog.show(Messages.get("notice"), Messages.get("preferences_saved"), Messages.get("ok"), null);
-                        Log.p("User preferences saved", Log.DEBUG);
-                    }
-                } catch (IOException e) {
-                    Log.p("Could not write preferences - " + e.toString(), Log.ERROR);
-                } finally {
-                    previousForm.show();
-                }
-            }
-        };
-        defaultCommand = backCommand;
-        return commands;
+        updateCommands();
     }
     
     private String[] getSupportedLanguages() {
@@ -233,9 +188,9 @@ public class PreferencesForm extends KeePassMobileForm {
     
     private int getSelectedTimeoutIndex() {
         long timeout = SecurityTimer.DEFAULT_TIMEOUT_MILLIS;
-        if(app.getSettings().exists(Settings.SECURITY_TIMEOUT)) {
+        if(KeePassMobile.instance().getSettings().exists(Settings.SECURITY_TIMEOUT)) {
             try {
-                timeout = Long.parseLong(app.getSettings().get(Settings.SECURITY_TIMEOUT));
+                timeout = Long.parseLong(KeePassMobile.instance().getSettings().get(Settings.SECURITY_TIMEOUT));
             } catch (NumberFormatException e) {
             }
         }
@@ -247,9 +202,32 @@ public class PreferencesForm extends KeePassMobileForm {
         }
         return -1;
     }
-    
-    private String getTimeoutMillis(int selectedIndex) {
-        if(selectedIndex == 0) return "-1";
-        else return ""+SecurityTimer.SUPPORTED_TIMEOUT_MINUTES[selectedIndex]*60*1000;
+
+    ComboBox getUiBox() {
+        return uiBox;
+    }
+
+    ComboBox getBackupBox() {
+        return backupBox;
+    }
+
+    ComboBox getQuickBox() {
+        return quickBox;
+    }
+
+    ComboBox getLangBox() {
+        return langBox;
+    }
+
+    ComboBox getDfBox() {
+        return dfBox;
+    }
+
+    ComboBox getTimeoutBox() {
+        return timeoutBox;
+    }
+
+    ComboBox getFontBox() {
+        return fontBox;
     }
 }

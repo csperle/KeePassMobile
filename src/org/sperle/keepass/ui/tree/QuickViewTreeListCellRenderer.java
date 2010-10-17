@@ -36,18 +36,14 @@ import com.sun.lwuit.layouts.BoxLayout;
 import com.sun.lwuit.list.ListCellRenderer;
 
 public class QuickViewTreeListCellRenderer extends Label implements ListCellRenderer {
-    private KeePassMobile app;
     private KeePassDatabase kdb;
-    private boolean fastUI;
     
     private Container selected = new Container(new BoxLayout(BoxLayout.Y_AXIS));
     private Label user = new Label();
     private Label password = new Label();
     
-    public QuickViewTreeListCellRenderer(KeePassMobile app, KeePassDatabase kdb, boolean fastUI) {
-        this.app = app;
+    public QuickViewTreeListCellRenderer(KeePassDatabase kdb) {
         this.kdb = kdb;
-        this.fastUI = fastUI;
         
         user.setUIID("QuickViewUserLabel");
         user.setFocus(true);
@@ -100,7 +96,7 @@ public class QuickViewTreeListCellRenderer extends Label implements ListCellRend
             boolean expired = entry.expired();
             setIcon(expired ? Icons.getExpiredIcon() : Icons.getKeePassIcon(entry.getIconId()));
             
-            if(entry == app.getClipboardEntry()) {
+            if(entry == KeePassMobile.instance().getClipboardEntry()) {
                 getUnselectedStyle().setFgColor(0xCCCCCC, true); //grey
                 getSelectedStyle().setFgColor(0xCCCCCC, true); //grey
             } else if(expired) {
@@ -118,13 +114,13 @@ public class QuickViewTreeListCellRenderer extends Label implements ListCellRend
         if (isSelected) {
             setFocus(true);
             getStyle().setFont(Fonts.getBoldFont(), true);
-            if(!fastUI) getStyle().setBgTransparency(128, true);
+            if(!KeePassMobile.instance().isFastUI()) getStyle().setBgTransparency(128, true);
             if(value instanceof KdbGroupV1) return this;
             else return selected;
         } else {
             setFocus(false);
             getStyle().setFont(Fonts.getNormalFont(), true);
-            if(!fastUI) getStyle().setBgTransparency(0, true);
+            if(!KeePassMobile.instance().isFastUI()) getStyle().setBgTransparency(0, true);
             return this;
         }
     }
@@ -134,7 +130,7 @@ public class QuickViewTreeListCellRenderer extends Label implements ListCellRend
         setIcon(null);
         setFocus(true);
         getStyle().setFont(Fonts.getNormalFont(), true);
-        if(!fastUI) getStyle().setBgTransparency(128);
+        if(!KeePassMobile.instance().isFastUI()) getStyle().setBgTransparency(128);
         return this;
     }
 }

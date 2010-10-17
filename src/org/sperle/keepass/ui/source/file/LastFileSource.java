@@ -20,17 +20,16 @@
 
 package org.sperle.keepass.ui.source.file;
 
-import org.sperle.keepass.ui.KeePassMobile;
 import org.sperle.keepass.ui.i18n.Messages;
 
 public class LastFileSource extends FileSource {
-    public LastFileSource(final KeePassMobile app, String filename) {
-        super(app);
+    public LastFileSource(String filename) {
+        super();
         this.filename = filename;
     }
     
     public void choosen() {
-        MasterPasswordForm passwdForm = new MasterPasswordForm(app, this);
+        MasterPasswordForm passwdForm = new MasterPasswordForm(this);
         passwdForm.show();
     }
     

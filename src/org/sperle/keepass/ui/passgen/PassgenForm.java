@@ -30,7 +30,6 @@ import org.sperle.keepass.ui.i18n.Messages;
 import org.sperle.keepass.ui.util.SimplePasswordGenerator;
 
 import com.sun.lwuit.CheckBox;
-import com.sun.lwuit.Command;
 import com.sun.lwuit.Container;
 import com.sun.lwuit.Dialog;
 import com.sun.lwuit.Label;
@@ -64,37 +63,25 @@ public class PassgenForm extends KeePassMobileForm {
     private SimplePasswordGenerator generator;
     
     private static PassgenForm instance;
-    public static synchronized PassgenForm create(KeePassMobile app, EntryForm entryForm) {
+    public static synchronized PassgenForm create(EntryForm entryForm) {
         if (instance == null) {
-            instance = new PassgenForm(app);
-            instance.generator = new SimplePasswordGenerator(app.createRandom());
+            instance = new PassgenForm();
+            instance.generator = new SimplePasswordGenerator(KeePassMobile.instance().createRandom());
         }
         instance.entryForm = entryForm;
         instance.generateNewPasswordList();
         return instance;
     }
     
-    private PassgenForm(final KeePassMobile app) {
-        super(app, Messages.get("passgen"));
+    private PassgenForm() {
+        super(Messages.get("passgen"));
         
         setLayout(new BorderLayout());
         setScrollable(false);
         
-        app.getCommandManager().addCommands(this, createCommands(), backCommand);
-        
         addComponent(BorderLayout.NORTH, getOptionsPanel());
         addComponent(BorderLayout.CENTER, getPasswordList());
-    }
-    
-    private Command[] createCommands() {
-        Command[] commands = new Command[2];
-        commands[0] = backCommand;
-        commands[1] = new Command(Messages.get("help")) {
-            public void actionPerformed(ActionEvent evt) {
-                Forms.showHelp(Messages.get("passgen_help"));
-            }
-        };
-        return commands;
+        updateCommands();
     }
     
     private Container getOptionsPanel() {
@@ -160,7 +147,7 @@ public class PassgenForm extends KeePassMobileForm {
             passwordList.setListCellRenderer(new DefaultListCellRenderer(false));
             passwordList.setOrientation(List.VERTICAL);
             passwordList.setFixedSelection(List.FIXED_NONE_CYCLIC);
-            if(!app.isFastUI()) passwordList.setSmoothScrolling(true);
+            if(!KeePassMobile.instance().isFastUI()) passwordList.setSmoothScrolling(true);
             else passwordList.setSmoothScrolling(false);
             passwordList.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent evt) {

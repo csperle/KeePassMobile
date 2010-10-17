@@ -38,17 +38,12 @@ public class FileSource implements MenuItem {
     private static final String KDB_FILE_ENDING = ".kdb";
     //private static final String KEY_FILE_ENDING = ".key";
     
-    protected final KeePassMobile app;
     protected String filename;
     
     private String password;
     
-    public FileSource(final KeePassMobile app) {
-        this.app = app;
-    }
-
     public void choosen() {
-        FileChooserForm fileChooser = new FileChooserForm(app, new FileChooserForm.FileChooserCallback() {
+        FileChooserForm fileChooser = new FileChooserForm(new FileChooserForm.FileChooserCallback() {
             public void choosen(String filename) {
                 dbFileChoosen(filename);
             }
@@ -58,11 +53,11 @@ public class FileSource implements MenuItem {
             public void errorOccured(Exception e) {
                 Log.p("Error choosing database file - " + e.toString(), Log.ERROR);
                 Dialog.show(Messages.get("choosing_error"), Messages.get("choosing_error_text") + e.getMessage(), Messages.get("ok"), null);
-                app.showMainMenu();
+                KeePassMobile.instance().showMainMenu();
             }
-        }, app.isFastUI());
-        if(app.getSettings().exists(Settings.LAST_FILE)) {
-            fileChooser.setDirectory(app.getSettings().get(Settings.LAST_FOLDER));
+        });
+        if(KeePassMobile.instance().getSettings().exists(Settings.LAST_FILE)) {
+            fileChooser.setDirectory(KeePassMobile.instance().getSettings().get(Settings.LAST_FOLDER));
         }
         fileChooser.setFileEndingFilter(KDB_FILE_ENDING);
         fileChooser.show();
@@ -71,14 +66,14 @@ public class FileSource implements MenuItem {
     protected void fileChoosingCanceled() {
         password = null;
         Log.p("Database file choosing canceled", Log.DEBUG);
-        app.showMainMenu();
+        KeePassMobile.instance().showMainMenu();
     }
 
     protected void dbFileChoosen(String filename) {
         this.filename = filename;
         Log.p("Database file [" + filename + "] choosen");
         
-        MasterPasswordForm passwdForm = new MasterPasswordForm(app, this);
+        MasterPasswordForm passwdForm = new MasterPasswordForm(this);
         passwdForm.show();
     }
     
@@ -94,13 +89,13 @@ public class FileSource implements MenuItem {
     
     protected void passwordEnteringCanceled() {
         Log.p("Password entering canceled", Log.DEBUG);
-        app.showMainMenu();
+        KeePassMobile.instance().showMainMenu();
     }
     
     protected void openKeyFile(String password) {
         this.password = password;
         
-        FileChooserForm fileChooser = new FileChooserForm(app, new FileChooserForm.FileChooserCallback() {
+        FileChooserForm fileChooser = new FileChooserForm(new FileChooserForm.FileChooserCallback() {
             public void choosen(String filename) {
                 keyFileChoosen(filename);
             }
@@ -110,32 +105,32 @@ public class FileSource implements MenuItem {
             public void errorOccured(Exception e) {
                 Log.p("Error choosing key file - " + e.toString(), Log.ERROR);
                 Dialog.show(Messages.get("choosing_error"), Messages.get("choosing_error_text") + e.getMessage(), Messages.get("ok"), null);
-                app.showMainMenu();
+                KeePassMobile.instance().showMainMenu();
             }
-        }, app.isFastUI());
+        });
         fileChooser.show();
     }
     
     protected void decrypt(String password, String keyfile) {
-        Loader loader = new Loader(app.getKeePassMobileIO(), filename, password, keyfile);
+        Loader loader = new Loader(KeePassMobile.instance().getKeePassMobileIO(), filename, password, keyfile);
         loader.load();
         KeePassDatabase kdb = loader.getKdb();
         
         if(kdb == null) {
-            app.showMainMenu();
+            KeePassMobile.instance().showMainMenu();
             return;
         }
         
         try {
-            if(app.getSettings().available()) app.getSettings().set(Settings.LAST_FILE, filename);
-            if(app.getSettings().available()) app.getSettings().set(Settings.LAST_FOLDER, filename.substring(0, filename.lastIndexOf('/')+1));
+            if(KeePassMobile.instance().getSettings().available()) KeePassMobile.instance().getSettings().set(Settings.LAST_FILE, filename);
+            if(KeePassMobile.instance().getSettings().available()) KeePassMobile.instance().getSettings().set(Settings.LAST_FOLDER, filename.substring(0, filename.lastIndexOf('/')+1));
         } catch (IOException e) {
             Log.p("Could not write last file settings - " + e.toString(), Log.ERROR);
         }
         
-        app.startSecurityTimer(kdb);
+        KeePassMobile.instance().startSecurityTimer(kdb);
         
-        TreeForm treeForm = new TreeForm(app, kdb, null);
+        TreeForm treeForm = new TreeForm(kdb, null);
         treeForm.show();
     }
     

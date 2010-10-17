@@ -20,6 +20,7 @@
 
 package org.sperle.keepass.ui.menu;
 
+import org.sperle.keepass.ui.KeePassMobile;
 import org.sperle.keepass.ui.font.Fonts;
 
 import com.sun.lwuit.Component;
@@ -28,11 +29,6 @@ import com.sun.lwuit.List;
 import com.sun.lwuit.list.ListCellRenderer;
 
 public class MainMenuListCellRenderer extends Label implements ListCellRenderer {
-    private boolean fastUI;
-    
-    public MainMenuListCellRenderer(boolean fastUI) {
-        this.fastUI = fastUI;
-    }
     
     public Component getListCellRendererComponent(List list, Object value, int index, boolean isSelected) {
         setText(" "+value);
@@ -40,11 +36,11 @@ public class MainMenuListCellRenderer extends Label implements ListCellRenderer 
         if (isSelected) {
             setFocus(true);
             getStyle().setFont(Fonts.getBoldFont(), true);
-            if(!fastUI) getStyle().setBgTransparency(128);
+            if(!KeePassMobile.instance().isFastUI()) getStyle().setBgTransparency(128);
         } else {
             setFocus(false);
             getStyle().setFont(Fonts.getNormalFont(), true);
-            if(!fastUI) getStyle().setBgTransparency(0);
+            if(!KeePassMobile.instance().isFastUI()) getStyle().setBgTransparency(0);
         }
         return this;
     }
@@ -53,7 +49,7 @@ public class MainMenuListCellRenderer extends Label implements ListCellRenderer 
         setText("");
         setFocus(true);
         getStyle().setFont(Fonts.getNormalFont(), true);
-        if(!fastUI) getStyle().setBgTransparency(128);
+        if(!KeePassMobile.instance().isFastUI()) getStyle().setBgTransparency(128);
         return this;
     }
 }
