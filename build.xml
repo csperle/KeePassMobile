@@ -12,7 +12,7 @@
 	
     <property name="src.path" value="src"/>
 	<property name="res.path" value="res"/>
-	<property name="res_mini.path" value="res_mini"/>
+	<property name="res_light.path" value="res_light"/>
 	<property name="test.path" value="test"/>
 	<property name="report.path" value="report"/>
 	
@@ -26,7 +26,7 @@
 	
 	<property name="src.deploy.path" value="${deploy.path}/src"/>
 	<property name="j2me.deploy.path" value="${deploy.path}/j2me"/>
-	<property name="j2me_mini.deploy.path" value="${deploy.path}/j2me_mini"/>
+	<property name="j2me_light.deploy.path" value="${deploy.path}/j2me_light"/>
 	
 	<property name="wtk.cldc.version" value="1.1"/>
 	<property name="wtk.midp.version" value="2.0"/>
@@ -120,7 +120,7 @@
 	
 	<target name="j2me" depends="preverify, jad">
 		<wtkpackage jarfile="${j2me.deploy.path}/KeePassMobile.jar" jadfile="${j2me.deploy.path}/KeePassMobile.jad" obfuscate="true" preverify="false">
-			<argument value="-dontusemixedcaseclassnames -overloadaggressively -repackageclasses '' -allowaccessmodification -microedition -keep public class * extends javax.microedition.midlet.MIDlet" />
+			<argument value="-dontusemixedcaseclassnames -useuniqueclassmembernames -repackageclasses '' -allowaccessmodification -microedition -keep public class * extends javax.microedition.midlet.MIDlet" />
 			<bootclasspath>
 				<path refid="j2me.classpath"/>
 			</bootclasspath>
@@ -131,20 +131,20 @@
 		</wtkpackage>
 	</target>
 
-	<target name="jad_mini" depends="init"> <!-- TODO -->
-		<mkdir dir="${j2me_mini.deploy.path}"/>
-		<copy file="${keepassmobile.home}/Application Descriptor" tofile="${j2me_mini.deploy.path}/KeePassMobile.jad"/>
+	<target name="jad_light" depends="init"> <!-- TODO -->
+		<mkdir dir="${j2me_light.deploy.path}"/>
+		<copy file="${keepassmobile.home}/Application Descriptor" tofile="${j2me_light.deploy.path}/KeePassMobile.jad"/>
 	</target>
 	
-	<target name="j2me_mini" depends="preverify, jad_mini">
-		<wtkpackage jarfile="${j2me_mini.deploy.path}/KeePassMobile.jar" jadfile="${j2me_mini.deploy.path}/KeePassMobile.jad" obfuscate="true" preverify="false">
+	<target name="j2me_light" depends="preverify, jad_light">
+		<wtkpackage jarfile="${j2me_light.deploy.path}/KeePassMobile.jar" jadfile="${j2me_light.deploy.path}/KeePassMobile.jad" obfuscate="true" preverify="false">
 			<argument value="-dontusemixedcaseclassnames -overloadaggressively -repackageclasses '' -allowaccessmodification -microedition -keep public class * extends javax.microedition.midlet.MIDlet" />
 			<bootclasspath>
 				<path refid="j2me.classpath"/>
 			</bootclasspath>
 			<fileset dir="${preverified.build.path}"/>
 			<fileset dir="${keepassmobile.home}/${res.path}" includes="filechooser.res, kdbicons.res, locales.properties, **/*.png"/>
-			<fileset dir="${keepassmobile.home}/${res_mini.path}" includes="**/*.res, **/*.png"/>
+			<fileset dir="${keepassmobile.home}/${res_light.path}" includes="**/*.res, **/*.png"/>
 		</wtkpackage>
 	</target>
 	
@@ -177,11 +177,11 @@
 		<wtkrun jadfile="${j2me.deploy.path}/KeePassMobile.jad" device="MediaControlSkin" wait="true" heapsize="2M" />
 	</target>
 	
-	<target name="run_mini"><!-- ATTENTION: first delete 'http://m.keepassmobile.com/' from MIDlet-Jar-URL in JAD -->
-		<wtkrun jadfile="${j2me_mini.deploy.path}/KeePassMobile.jad" device="MediaControlSkin" wait="true" heapsize="2M" />
+	<target name="run_light"><!-- ATTENTION: first delete 'http://m.keepassmobile.com/' from MIDlet-Jar-URL in JAD -->
+		<wtkrun jadfile="${j2me_light.deploy.path}/KeePassMobile.jad" device="MediaControlSkin" wait="true" heapsize="2M" />
 	</target>
 	
 	<target name="default" depends="src, j2me, cleanup"/>
 	
-	<target name="ci" depends="src, j2me, j2me_mini, findbugs, checkstyle, cleanup"/>
+	<target name="ci" depends="src, j2me, j2me_light, findbugs, checkstyle, cleanup"/>
 </project>
