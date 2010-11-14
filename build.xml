@@ -183,5 +183,7 @@
 	
 	<target name="default" depends="src, j2me, cleanup"/>
 	
+	<target name="ci_withoutCodeAnalysis" depends="src, j2me, j2me_light, cleanup"/>
+	
 	<target name="ci" depends="src, j2me, j2me_light, findbugs, checkstyle, cleanup"/>
 </project>
