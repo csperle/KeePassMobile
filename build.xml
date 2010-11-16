@@ -138,7 +138,7 @@
 	
 	<target name="j2me_light" depends="preverify, jad_light">
 		<wtkpackage jarfile="${j2me_light.deploy.path}/KeePassMobile.jar" jadfile="${j2me_light.deploy.path}/KeePassMobile.jad" obfuscate="true" preverify="false">
-			<argument value="-dontusemixedcaseclassnames -overloadaggressively -repackageclasses '' -allowaccessmodification -microedition -keep public class * extends javax.microedition.midlet.MIDlet" />
+			<argument value="-dontusemixedcaseclassnames -useuniqueclassmembernames -repackageclasses '' -allowaccessmodification -microedition -keep public class * extends javax.microedition.midlet.MIDlet" />
 			<bootclasspath>
 				<path refid="j2me.classpath"/>
 			</bootclasspath>
