@@ -180,7 +180,7 @@ public class TreeFormCommands extends AbstractFormCommands {
     }
     
     private void closeDatabase() {
-        form.getKdb().close();
+        KeePassMobile.instance().getKeePassMobileIO().close(form.getKdb());
         KeePassMobile.instance().emptyClipboard();
         KeePassMobile.instance().stopSecurityTimer();
         KeePassMobile.instance().showMainMenu();

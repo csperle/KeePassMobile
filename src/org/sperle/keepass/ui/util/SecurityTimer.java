@@ -63,7 +63,7 @@ public class SecurityTimer implements Runnable {
             }
         }
         if(!stoppedFromOutside) { // stopped, because security timeout was reached
-            kdb.close();
+            KeePassMobile.instance().getKeePassMobileIO().close(kdb);
             Log.p("Security timeout: database closed!", Log.DEBUG);
             Display.getInstance().callSerially(new Runnable() {
                 public void run() {
