@@ -26,8 +26,11 @@ import com.sun.lwuit.util.Log;
 
 public class TreeFormCommands extends AbstractFormCommands {
     
-    private TreeForm form;
+    protected TreeForm form;
 
+    /****
+     * ATTENTION: IF YOU CHANGE SOMETHING HERE, YOU HAVE TO CHANGE TreeFormBlackBerryCommands, TOO!!!
+     ****/
     public TreeFormCommands(final TreeForm form) {
         this.form = form;
         
@@ -116,6 +119,9 @@ public class TreeFormCommands extends AbstractFormCommands {
         defaultCommand = 0; // search
     }
     
+    /****
+     * ATTENTION: IF YOU CHANGE SOMETHING HERE, YOU HAVE TO CHANGE TreeFormBlackBerryCommands, TOO!!!
+     ****/
     public void update() {
         final KdbItem selected = (KdbItem)form.getList().getSelectedItem();
         final KdbGroup parentGroup = form.getParentGroup();

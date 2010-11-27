@@ -141,7 +141,7 @@ public class PassgenForm extends KeePassMobileForm {
         return optionsPanel;
     }
     
-    private List getPasswordList() {
+    public List getPasswordList() {
         if(passwordList == null) {
             passwordList = new List();
             passwordList.setListCellRenderer(new DefaultListCellRenderer(false));

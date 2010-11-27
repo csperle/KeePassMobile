@@ -31,6 +31,7 @@ import org.sperle.keepass.ui.form.StatisticsForm;
 import org.sperle.keepass.ui.menu.MainMenuForm;
 import org.sperle.keepass.ui.menu.MainMenuFormCommands;
 import org.sperle.keepass.ui.passgen.PassgenForm;
+import org.sperle.keepass.ui.passgen.PassgenFormCommands;
 import org.sperle.keepass.ui.search.SearchForm;
 import org.sperle.keepass.ui.search.SearchOptionsForm;
 import org.sperle.keepass.ui.source.create.CreateDatabaseForm;
@@ -69,7 +70,7 @@ public class DefaultCommandManager implements CommandManager {
         } else if (form instanceof MainMenuForm) {
             return new MainMenuFormCommands((MainMenuForm) form);
         } else if (form instanceof PassgenForm) {
-            return new BackHelpFormCommands((KeePassMobileCommand) form.getBackCommand(), "passgen_help");
+            return new PassgenFormCommands((PassgenForm)form);
         } else if (form instanceof SearchForm) {
             return new SearchForm.FormCommands((SearchForm) form);
         } else if (form instanceof SearchOptionsForm) {
