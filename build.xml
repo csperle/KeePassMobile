@@ -129,6 +129,12 @@
 				<pathelement path="${jmunit.home}/dist/jmunit4cldc11-1.2.1.jar"/>
 			</classpath>
 		</javac>
+		<copy todir="${test.compiled.build.path}">
+			<fileset dir="${test.build.path}">
+				<exclude name="**/.svn/**"/>
+				<exclude name="**/*.java"/>
+			</fileset>
+		</copy>
 	</target>
 	
 	<target name="preverify" depends="compile_src">
