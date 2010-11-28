@@ -4,6 +4,7 @@
 	<property name="antenna.home" value="/opt/antenna-1.2.1-beta"/>
 	<property name="findbugs.home" value="/opt/findbugs-1.3.9"/>
 	<property name="checkstyle.home" value="/opt/checkstyle-5.1"/>
+	<property name="jmunit.home" value="/opt/jmunit-1.2.1"/>
 	
 	<property name="keepassmobile.home" value="."/>
     <property name="keepassmobileio.home" value="../KeePassMobileIO"/>
@@ -20,7 +21,9 @@
     <property name="deploy.path" value="deploy"/>
 	
 	<property name="src.build.path" value="${build.path}/src"/>
+	<property name="test.build.path" value="${build.path}/test"/>
 	<property name="compiled.build.path" value="${build.path}/compiled"/>
+	<property name="test.compiled.build.path" value="${build.path}/compiled_tests"/>
 	<property name="preverified.build.path" value="${build.path}/preverified"/>
 	<property name="findbugs.build.path" value="${build.path}/findbugs"/>
 	
@@ -34,7 +37,8 @@
 	<taskdef classpath="${antenna.home}/antenna.jar" resource="antenna.properties" />
 	<taskdef classpath="${findbugs.home}/lib/findbugs-ant.jar" resource="edu/umd/cs/findbugs/anttask/tasks.properties"/>
 	<taskdef classpath="${checkstyle.home}/checkstyle-all-5.1.jar" resource="checkstyletask.properties"/>
-	
+	<taskdef classpath="${jmunit.home}/lib/microemulator.jar:${jmunit.home}/lib/jdom.jar:${jmunit.home}/dist/jmunit_anttasks-1.2.1.jar:${jmunit.home}/dist/jmunit4cldc11-1.2.1.jar" name="jmunit" classname="jmunit.anttask.cldc11.Jmunit"  />
+
 	<path id="j2me.classpath">
 		<fileset dir="${wtk.home}/lib">
 			<include name="jsr75.jar" />
@@ -72,7 +76,7 @@
 		</zip>
 	</target>
 	
-	<target name="collect" depends="init">
+	<target name="collect_src" depends="init">
 		<mkdir dir="${src.build.path}"/>
 		<copy todir="${src.build.path}">
 			<fileset dir="${bc.home}/${src.path}">
@@ -94,8 +98,20 @@
 			</fileset>
 		</copy>
 	</target>
-		
-	<target name="compile" depends="collect">
+
+	<target name="collect_test" depends="init">
+		<mkdir dir="${test.build.path}"/>
+		<copy todir="${test.build.path}">
+			<fileset dir="${keepassmobileio.home}/${test.path}">
+			    <exclude name="**/.svn/**"/>
+			</fileset>
+			<fileset dir="${keepassmobile.home}/${test.path}">
+				<exclude name="**/.svn/**"/>
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="compile_src" depends="collect_src">
 		<mkdir dir="${compiled.build.path}"/>
 		<javac srcdir="${src.build.path}" destdir="${compiled.build.path}" debug="true" nowarn="true" source="1.3" target="1.1">
 			<classpath>
@@ -104,7 +120,18 @@
 		</javac>
 	</target>
 	
-	<target name="preverify" depends="compile">
+	<target name="compile_test" depends="collect_test, compile_src">
+		<mkdir dir="${test.compiled.build.path}"/>
+		<javac srcdir="${test.build.path}" destdir="${test.compiled.build.path}" debug="true" nowarn="true" source="1.3" target="1.1">
+			<classpath>
+				<pathelement path="${compiled.build.path}"/>
+				<path refid="j2me.classpath"/>
+				<pathelement path="${jmunit.home}/dist/jmunit4cldc11-1.2.1.jar"/>
+			</classpath>
+		</javac>
+	</target>
+	
+	<target name="preverify" depends="compile_src">
 		<mkdir dir="${preverified.build.path}"/>
 		<wtkpreverify srcdir="${compiled.build.path}" destdir="${preverified.build.path}">
 			<bootclasspath>
@@ -148,7 +175,20 @@
 		</wtkpackage>
 	</target>
 	
-	<target name="findbugs" depends="compile">
+	<target name="jmunit_test" depends="compile_test">
+		<mkdir dir="${report.path}/jmunit"/>
+		<jmunit haltonerror="false" haltonfailure="false" failureproperty="testfailure">
+			<formatter type="xml" />
+			<classpath>
+				<pathelement path="${compiled.build.path}"/>
+				<pathelement path="${test.compiled.build.path}"/>
+			</classpath>
+			<test name="org.sperle.keepass.KeePassMobileIOTestSuite" todir="${report.path}/jmunit" />
+			<test name="org.sperle.keepass.ui.KeePassMobileTestSuite" todir="${report.path}/jmunit" />
+		</jmunit>
+	</target>
+	
+	<target name="findbugs" depends="compile_src">
 		<mkdir dir="${findbugs.build.path}/org/sperle"/>
 		<copy todir="${findbugs.build.path}/org/sperle">
 			<fileset dir="${compiled.build.path}/org/sperle" />
@@ -162,7 +202,7 @@
 	    </findbugs>
 	</target>
 	
-	<target name="checkstyle" depends="collect">
+	<target name="checkstyle" depends="collect_src">
 		<checkstyle config="checkstyle.xml" failOnViolation="false">
 			<fileset dir="${src.build.path}" includes="org/sperle/keepass/**/*.java" />
 			<formatter type="xml" toFile="${report.path}/checkstyle-result.xml" />
@@ -185,5 +225,5 @@
 	
 	<target name="ci_withoutCodeAnalysis" depends="src, j2me, j2me_light, cleanup"/>
 	
-	<target name="ci" depends="src, j2me, j2me_light, findbugs, checkstyle, cleanup"/>
+	<target name="ci" depends="src, j2me, j2me_light, jmunit_test, findbugs, checkstyle, cleanup"/>
 </project>
