@@ -30,6 +30,7 @@
 	<property name="src.deploy.path" value="${deploy.path}/src"/>
 	<property name="j2me.deploy.path" value="${deploy.path}/j2me"/>
 	<property name="j2me_light.deploy.path" value="${deploy.path}/j2me_light"/>
+	<property name="test.deploy.path" value="${deploy.path}/test"/>
 	
 	<property name="wtk.cldc.version" value="1.1"/>
 	<property name="wtk.midp.version" value="2.0"/>
@@ -184,6 +185,7 @@
 	<target name="jmunit_test" depends="compile_test">
 		<mkdir dir="${report.path}/jmunit"/>
 		<jmunit haltonerror="false" haltonfailure="false" failureproperty="testfailure">
+			<!-- sysproperty key="development" value="true" / -->
 			<formatter type="xml" />
 			<classpath>
 				<pathelement path="${compiled.build.path}"/>
@@ -193,6 +195,23 @@
 			<test name="org.sperle.keepass.ui.KeePassMobileTestSuite" todir="${report.path}/jmunit" />
 		</jmunit>
 	</target>
+	
+	<!--target name="jmunit_package" depends="compile_test">
+		<mkdir dir="${test.deploy.path}"/>
+		<wtkjad jadfile="${test.deploy.path}/KeePassMobileTest.jad" jarfile="${test.deploy.path}/KeePassMobileTest.jar" name="KeePassMobileTest" vendor="CBS" version="1.0">
+	        <midlet name="KeePassMobileTest" class="org.sperle.keepass.KeePassMobileIOTestSuite" />
+	    </wtkjad>
+	    <wtkpackage jarfile="${test.deploy.path}/KeePassMobileTest.jar" jadfile="${test.deploy.path}/KeePassMobileTest.jad" preverify="true" obfuscate="false">
+	    	<bootclasspath>
+	    		<path refid="j2me.classpath"/>
+	    	</bootclasspath>
+	    	<libclasspath>
+	            <path path="${jmunit.home}/dist/jmunit4cldc11-1.2.1.jar" />
+	        </libclasspath>
+	    	<fileset dir="${compiled.build.path}"/>
+	    	<fileset dir="${test.compiled.build.path}"/>
+	    </wtkpackage>
+	</target -->
 	
 	<target name="findbugs" depends="compile_src">
 		<mkdir dir="${findbugs.build.path}/org/sperle"/>
