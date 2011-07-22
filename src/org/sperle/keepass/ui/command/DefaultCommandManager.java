@@ -23,6 +23,7 @@ package org.sperle.keepass.ui.command;
 import org.sperle.keepass.ui.edit.EntryForm;
 import org.sperle.keepass.ui.edit.EntryFormCommands;
 import org.sperle.keepass.ui.edit.GroupForm;
+import org.sperle.keepass.ui.form.AboutForm;
 import org.sperle.keepass.ui.form.EditDBForm;
 import org.sperle.keepass.ui.form.EditDBFormCommands;
 import org.sperle.keepass.ui.form.PreferencesForm;
@@ -85,6 +86,8 @@ public class DefaultCommandManager implements CommandManager {
             return new GroupForm.FormCommands((GroupForm) form);
         } else if (form instanceof TreeForm) {
             return new TreeFormCommands((TreeForm) form);
+        } else if (form instanceof AboutForm) {
+            return new BackHelpFormCommands((KeePassMobileCommand) form.getBackCommand(), null);
         }
         throw new IllegalStateException("no commands for form " + form.getClass().getName() + " configured");
     }

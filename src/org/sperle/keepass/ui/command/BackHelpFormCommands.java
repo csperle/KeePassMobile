@@ -17,11 +17,13 @@ public class BackHelpFormCommands extends AbstractFormCommands {
     public BackHelpFormCommands(final KeePassMobileCommand backCommand, final String helpMessageKey) {
         commands = new KeePassMobileCommand[2];
         commands[0] = backCommand;
-        commands[1] = new KeePassMobileCommand(Messages.get("help")) {
-            public void actionPerformed(ActionEvent evt) {
-                Forms.showHelp(Messages.get(helpMessageKey));
-            }
-        };
+        if(helpMessageKey != null) {
+            commands[1] = new KeePassMobileCommand(Messages.get("help")) {
+                public void actionPerformed(ActionEvent evt) {
+                    Forms.showHelp(Messages.get(helpMessageKey));
+                }
+            };
+        }
         defaultCommand = 0;
     }
 }
