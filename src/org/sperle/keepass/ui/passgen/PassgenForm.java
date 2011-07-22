@@ -28,6 +28,7 @@ import org.sperle.keepass.ui.form.Forms;
 import org.sperle.keepass.ui.form.KeePassMobileForm;
 import org.sperle.keepass.ui.i18n.Messages;
 import org.sperle.keepass.ui.util.SimplePasswordGenerator;
+import org.sperle.keepass.util.Passwords;
 
 import com.sun.lwuit.CheckBox;
 import com.sun.lwuit.Container;
@@ -153,7 +154,7 @@ public class PassgenForm extends KeePassMobileForm {
                 public void actionPerformed(ActionEvent evt) {
                     if(Dialog.show(Messages.get("change_password"), Messages.get("change_password_text"), Messages.get("yes"), Messages.get("no"))) {
                         String password = (String)passwordList.getSelectedItem();
-                        entryForm.getEntry().setPassword(password);
+                        entryForm.getEntry().setPassword(Passwords.fromString(password));
                         entryForm.setPasswordText(password);
                     }
                     Forms.setNoTransitionOut(PassgenForm.this);

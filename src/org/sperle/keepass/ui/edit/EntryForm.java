@@ -28,6 +28,7 @@ import org.sperle.keepass.ui.form.ItemListForm;
 import org.sperle.keepass.ui.i18n.Messages;
 import org.sperle.keepass.ui.icon.Icons;
 import org.sperle.keepass.ui.util.DateFormatter.ParseException;
+import org.sperle.keepass.util.Passwords;
 
 import com.sun.lwuit.Container;
 import com.sun.lwuit.Dialog;
@@ -103,11 +104,12 @@ public class EntryForm extends IconTitleForm {
         
         passLabel = new Label(Messages.get("password"));
         detailsPanel.addComponent(passLabel);
-        passField = new TextArea(entry.getPassword() != null ? entry.getPassword() : "");
+        String entryPasswd = Passwords.toString(entry.getPassword());
+        passField = new TextArea(entryPasswd != null ? entryPasswd : "");
         //passField.getStyle().setFont(Fonts.getPasswdFont()); -> do not use: does not support Umlaute at the moment
         passField.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                entry.setPassword(passField.getText());
+                entry.setPassword(Passwords.fromString(passField.getText()));
             }
         });
         detailsPanel.addComponent(passField);

@@ -90,7 +90,7 @@ public class MidletSource implements MenuItem, Runnable {
         KeePassMobileIOFactory factory = new MidletKeePassMobileIOFactory();
         KeePassMobileIO keePassIO = factory.create();
         try {
-            kdb = keePassIO.load(TEST_DB, TEST_PASSWORD, null, pm);
+            kdb = keePassIO.load(TEST_DB, TEST_PASSWORD, null, true, pm); // TODO new setting: usePasswordEncryption
         } catch (Exception e) {
             exception = e;
         } finally {

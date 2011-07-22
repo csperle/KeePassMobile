@@ -27,6 +27,7 @@ import org.sperle.keepass.ui.KeePassMobile;
 import org.sperle.keepass.ui.font.Fonts;
 import org.sperle.keepass.ui.i18n.Messages;
 import org.sperle.keepass.ui.icon.Icons;
+import org.sperle.keepass.util.Passwords;
 
 import com.sun.lwuit.Component;
 import com.sun.lwuit.Container;
@@ -108,7 +109,7 @@ public class QuickViewTreeListCellRenderer extends Label implements ListCellRend
             }
             
             user.setText(Messages.get("user_name_initial") + " " + entry.getUsername());
-            password.setText(Messages.get("password_initial") + " " + entry.getPassword());
+            password.setText(Messages.get("password_initial") + " " + Passwords.toString(entry.getPassword()));
         }
         
         if (isSelected) {

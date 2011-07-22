@@ -78,7 +78,7 @@ public class CreateDatabaseSource implements MenuItem {
         
         KeePassDatabase kdb = null;
         try {
-            kdb = KeePassMobile.instance().getKeePassMobileIO().create(dbname, password, keyfile);
+            kdb = KeePassMobile.instance().getKeePassMobileIO().create(dbname, password, keyfile, true); // TODO new setting: usePasswordEncryption
         } catch (IOException e) {
             Log.p("Could not load key file - " + e.toString(), Log.ERROR);
             Dialog.show(Messages.get("keyfile_error"), Messages.get("keyfile_error_text") + e.getMessage(), Messages.get("ok"), null);

@@ -248,6 +248,10 @@
 	
 	<target name="default" depends="src, j2me, cleanup"/>
 	
+	<target name="run_tests" depends="jmunit_test, cleanup">
+		<delete dir="${deploy.path}"/>
+	</target>
+	
 	<target name="ci_withoutCodeAnalysis" depends="src, j2me, j2me_light, cleanup"/>
 	
 	<target name="ci" depends="src, j2me, j2me_light, jmunit_test, findbugs, checkstyle, cleanup"/>

@@ -1,5 +1,6 @@
 package org.sperle.keepass.ui.form;
 
+import org.sperle.keepass.kdb.KeePassDatabaseException;
 import org.sperle.keepass.ui.KeePassMobile;
 import org.sperle.keepass.ui.command.AbstractFormCommands;
 import org.sperle.keepass.ui.command.KeePassMobileCommand;
@@ -30,7 +31,11 @@ public class EditDBFormCommands extends AbstractFormCommands {
         };
         commands[2] = new KeePassMobileCommand(Messages.get("del_keyfile")) {
                 public void actionPerformed(ActionEvent evt) {
-                    form.getKdb().removeKeyFile();
+                    try {
+                        KeePassMobile.instance().getKeePassMobileIO().removeKeyFile(form.getKdb());
+                    } catch (KeePassDatabaseException e) {
+                        // not possible that wrong database version is used here
+                    }
                     form.updateCommands();
                     Dialog.show(Messages.get("keyfile_removed"), Messages.get("keyfile_removed_text"), Messages.get("ok"), null);
                 }

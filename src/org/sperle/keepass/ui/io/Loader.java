@@ -92,7 +92,7 @@ public class Loader implements Runnable {
     // runs in own thread (not EDT -> no UI code allowed!)
     public void run() {
         try {
-            kdb = keePassMobileIO.load(filename, password, keyfile, pm);
+            kdb = keePassMobileIO.load(filename, password, keyfile, true, pm); // TODO new setting: usePasswordEncryption
         } catch (Exception e) {
             exception = e;
         } finally {

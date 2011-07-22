@@ -21,8 +21,10 @@
 package org.sperle.keepass.ui.form;
 
 import org.sperle.keepass.kdb.KeePassDatabase;
+import org.sperle.keepass.kdb.KeePassDatabaseException;
 import org.sperle.keepass.ui.KeePassMobile;
 import org.sperle.keepass.ui.i18n.Messages;
+import org.sperle.keepass.util.Passwords;
 
 import com.sun.lwuit.Dialog;
 import com.sun.lwuit.Display;
@@ -80,7 +82,11 @@ public class EditDBForm extends KeePassMobileForm {
         passwd2Field.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 if(passwdField.getText().equals(passwd2Field.getText())) {
-                    kdb.setMasterPassword(passwdField.getText());
+                    try {
+                        KeePassMobile.instance().getKeePassMobileIO().setMasterPassword(kdb, Passwords.getEncodedMasterPassword(passwdField.getText()));
+                    } catch (KeePassDatabaseException e) {
+                        // not possible that wrong database version is used here
+                    }
                     Display.getInstance().callSerially(new Runnable() {
                         public void run() {
                             Dialog.show(Messages.get("password_changed"), Messages.get("password_changed_text"), Messages.get("ok"), null);
