@@ -64,7 +64,7 @@ public class EditDBFormCommands extends AbstractFormCommands {
     }
 
     private void setKeyFile() {
-        FileChooserForm fileChooser = new FileChooserForm(new FileChooserForm.FileChooserCallback() {
+        FileChooserForm fileChooser = new FileChooserForm(Messages.get("select_key"), new FileChooserForm.FileChooserCallback() {
             public void choosen(String filename) {
                 try {
                     KeePassMobile.instance().getKeePassMobileIO().setKeyFile(form.getKdb(), filename);

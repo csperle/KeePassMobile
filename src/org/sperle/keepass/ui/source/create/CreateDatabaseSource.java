@@ -46,7 +46,7 @@ public class CreateDatabaseSource implements MenuItem {
     }
     
     protected void openKeyFile(final String dbname, final String password) {
-        FileChooserForm fileChooser = new FileChooserForm(new FileChooserForm.FileChooserCallback() {
+        FileChooserForm fileChooser = new FileChooserForm(Messages.get("select_key"), new FileChooserForm.FileChooserCallback() {
             public void choosen(String keyfilename) {
                 create(dbname, password, keyfilename);
             }

@@ -43,7 +43,7 @@ public class FileSource implements MenuItem {
     private String password;
     
     public void choosen() {
-        FileChooserForm fileChooser = new FileChooserForm(new FileChooserForm.FileChooserCallback() {
+        FileChooserForm fileChooser = new FileChooserForm(Messages.get("select_db"), new FileChooserForm.FileChooserCallback() {
             public void choosen(String filename) {
                 dbFileChoosen(filename);
             }
@@ -95,7 +95,7 @@ public class FileSource implements MenuItem {
     protected void openKeyFile(String password) {
         this.password = password;
         
-        FileChooserForm fileChooser = new FileChooserForm(new FileChooserForm.FileChooserCallback() {
+        FileChooserForm fileChooser = new FileChooserForm(Messages.get("select_key"), new FileChooserForm.FileChooserCallback() {
             public void choosen(String filename) {
                 keyFileChoosen(filename);
             }

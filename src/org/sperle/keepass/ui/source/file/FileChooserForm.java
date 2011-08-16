@@ -62,8 +62,8 @@ public class FileChooserForm extends KeePassMobileForm {
     private boolean directoriesOnly = false;
     private FileChooserCallback callback;
     
-    public FileChooserForm(FileChooserCallback callback) {
-        super(Messages.get("select_db"));
+    public FileChooserForm(String title, FileChooserCallback callback) {
+        super(title);
         this.callback = callback;
         
         setLayout(new BorderLayout());

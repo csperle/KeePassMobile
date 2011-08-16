@@ -67,7 +67,7 @@ public class EntryFormCommands extends AbstractFormCommands {
     }
     
     private void addAttachment() {
-        FileChooserForm fileChooser = new FileChooserForm(new FileChooserForm.FileChooserCallback() {
+        FileChooserForm fileChooser = new FileChooserForm(Messages.get("select_attachment"), new FileChooserForm.FileChooserCallback() {
             public void choosen(String filename) {
                 try {
                     KeePassMobile.instance().getKeePassMobileIO().addAttachment(form.getEntry(), filename);
@@ -95,7 +95,7 @@ public class EntryFormCommands extends AbstractFormCommands {
     }
     
     private void saveAttachment() {
-        FileChooserForm fileChooser = new FileChooserForm(new FileChooserForm.FileChooserCallback() {
+        FileChooserForm fileChooser = new FileChooserForm(Messages.get("select_folder"), new FileChooserForm.FileChooserCallback() {
             public void choosen(String foldername) {
                 try {
                     KeePassMobile.instance().getKeePassMobileIO().saveAttachment(form.getEntry(), foldername);

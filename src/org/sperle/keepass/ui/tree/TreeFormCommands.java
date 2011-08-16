@@ -149,7 +149,7 @@ public class TreeFormCommands extends AbstractFormCommands {
                     + " " + kdb.getFileName(), Messages.get("ok"), null);
             if(closeAfterSave) closeDatabase();
         } else {  // no file URL: db was newly created and the filename field of the db only holds the given name (during creation)
-            FileChooserForm fileChooser = new FileChooserForm(new FileChooserForm.FileChooserCallback() {
+            FileChooserForm fileChooser = new FileChooserForm(Messages.get("select_folder"), new FileChooserForm.FileChooserCallback() {
                 public void choosen(String foldername) {
                     String filename = foldername + (foldername.endsWith("/") ? "" : "/") + 
                             (kdb.getFileName().endsWith(".kdb") ? kdb.getFileName() : (kdb.getFileName() + ".kdb"));
